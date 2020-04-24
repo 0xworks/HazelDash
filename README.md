@@ -9,6 +9,5 @@ In particular, I wanted something to show off the recent "batch renderer" additi
 Windows only, and Visual Studio 2019.
 
 * Clone the repository with `git clone --recursive https://github.com/Freeman40/HazelDash`
-* Run the script `Win-GenProjects.bat` from the Scripts subdirectory
-* Open the Visual Studio solution that the script produces, and build.
-
+* Run the script `VS2019-GenProjects.bat` from the Build subdirectory
+* Open the generated VS2019 solution file from the Build/VS2019 subdirectory.  Build project.
