@@ -1,0 +1,3 @@
+[submodule "Hazel"]
+	path = Hazel
+	url = https://github.com/TheCherno/Hazel.git
