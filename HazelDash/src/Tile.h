@@ -112,7 +112,7 @@ enum class Tile {
 	Metal1,
 	Dirt1,
 	Brick1,
-	Background1, // not currently in use
+	Empty,
 	Spare8,
 	Spare9,
 	Spare10,
@@ -146,7 +146,7 @@ enum class Tile {
 	Spare12,
 	Spare13,
 	Spare14,
-	Empty
+	Spare15
 };
 
 inline bool IsEmpty(Tile tile) {

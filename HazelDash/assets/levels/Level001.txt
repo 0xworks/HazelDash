@@ -1,0 +1,61 @@
+; written by Bouldercaves.Bdcff by Irmen de Jong
+; last modified 2020-04-25
+
+[BDCFF]
+[game]
+Name=playtest caveset
+Description=playtest caveset
+Author=j.waite
+WWW=
+Date=2020-04-25
+Charset=Original
+Fontset=Original
+Levels=1
+Caves=1
+
+[cave]
+Name=A: test
+Description=A test cave.
+Intermission=false
+FrameTime=150
+CaveDelay=8
+CaveTime=200
+DiamondsRequired=12
+DiamondValue=0 0
+AmoebaTime=999
+AmoebaThreshold=0.227300
+MagicWallTime=999
+SlimePermeability=1.000
+BorderProperties.wraparound=false
+BorderProperties.lineshift=true
+Size=40 22
+Colors=Black Black Orange Gray1 White Green Blue
+
+[map]
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+WP........r.............r...rr..r......W
+Wr.....r..........r.............r...r.dW
+W....r..........r..wwwwwwwwwwwwwwwwwwwwW
+W..rr........r..w..r.r....r............W
+W..rd.rr.rr.....w......r.........r.r..rW
+W.rr..r......r..w..rr....rr..r..rw.r..rW
+Wwwwwww.........w....r.rr..r.....w.rr..W
+W.........rr.r..w.r..............wrr...W
+W......r.r.r....wrr.......r.....rw.d.r.W
+W.rrr...........wrdr........r....wdd...W
+Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W
+Wr.r...w....r...w..rrr....rr...r.w....rW
+W....r.w........w......r..rr.r...w.....W
+W......w...r..r.w.....r.r......rrw....rW
+W..r.r.wrr...rdrw..r..r...r......w...rrW
+Wr.....w..r.....w.r....r..rr..r.rw..r.rW
+W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW
+W......wwwwwwwwww.r..r...r...r......r..W
+W..rr.....r.rr....d....r.r.r....r....rrW
+W.r....r.....r...dd...rrr.r...r.r.....XW
+WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW
+[/map]
+[/cave]
+
+[/game]
+[/BDCFF]

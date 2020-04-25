@@ -97,7 +97,7 @@ void Level::SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB) {
 
 
 void Level::Explode(size_t row, size_t col) {
-	Tile explodeTo = Tile::Background1;
+	Tile explodeTo = Tile::Empty;
 	if (GetGameObject(row, col).IsButterfly()) {
 		explodeTo = Tile::Diamond0;
 	}

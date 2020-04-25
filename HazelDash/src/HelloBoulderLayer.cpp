@@ -253,7 +253,7 @@ void HelloBoulderLayer::OnUpdate(Hazel::Timestep ts) {
 	for (size_t row = minRow; row < maxRow; ++row) {
 		for (size_t col = minCol; col < maxCol; ++col) {
 			GameObject& object = m_Level.GetGameObject(row, col);
-			if (!object.IsEmpty()) {
+			//if (!object.IsEmpty()) {
 				glm::vec3 position(col - m_ViewPort.GetLeft() + 0.5f, row - m_ViewPort.GetBottom() + 0.5f, 0.0f);
 				Hazel::Renderer2D::DrawQuad(position, m_TileSize, m_Tiles[(int)object.GetTile()]);
 				if (object.IsPlayer()) {
@@ -263,7 +263,7 @@ void HelloBoulderLayer::OnUpdate(Hazel::Timestep ts) {
 						m_WonLevel = true;
 					}
 				}
-			}
+			//}
 		}
 	}
 
