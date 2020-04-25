@@ -15,6 +15,9 @@ public:
 
 	virtual void Animate(Hazel::Timestep ts) {}
 
+	virtual void IncreaseFrame() {}
+	virtual void DecreaseFrame() {}
+
 	virtual Tile GetTile() const { return m_Tile; }
 
 	bool IsEmpty() const { return ::IsEmpty(GetTile()); }
@@ -35,8 +38,4 @@ public:
 
 private:
 	Tile m_Tile;
-public:
-
-
-
 };

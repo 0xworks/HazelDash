@@ -1,7 +1,7 @@
 #include "Firefly.h"
 #include "Level.h"
 
-static std::vector<std::pair<int, int>> s_Directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0} };
+static std::vector<std::pair<int, int>> s_Directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0}};
 
 Firefly::Firefly()
 : m_Animation({Tile::Firefly0, Tile::Firefly1, Tile::Firefly2, Tile::Firefly3})
@@ -23,9 +23,8 @@ void Firefly::FixedUpdate(size_t row, size_t col, Level& level) {
 
 	// Fireflies always try to turn left first, otherwise keep going straight.
 	// If that doesn't work, then try turn right on next turn
-	int thisMove = (m_LastMove + 1) % 4;
+	int thisMove = (m_LastMove + 1) % s_Directions.size();
 	auto [rowOffset, colOffset] = s_Directions[thisMove];
-
 	if (level.GetGameObject(row + rowOffset, col + colOffset).IsEmpty()) {
 		level.SwapObjects(row + rowOffset, col + colOffset, row, col);
 		level.SetUpdated(row + rowOffset, col + colOffset, true);
@@ -36,7 +35,7 @@ void Firefly::FixedUpdate(size_t row, size_t col, Level& level) {
 			level.SwapObjects(row + rowOffset, col + colOffset, row, col);
 			level.SetUpdated(row + rowOffset, col + colOffset, true);
 		} else {
-			m_LastMove = (m_LastMove + 2) % 4;
+			m_LastMove = (m_LastMove + 2) % s_Directions.size();
 		}
 	}
 	level.SetUpdated(row, col, true);

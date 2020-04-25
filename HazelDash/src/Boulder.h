@@ -1,6 +1,8 @@
 #pragma once
 
 #include "GameObject.h"
+#include "Tile.h"
+#include <vector>
 
 class Boulder : public GameObject {
 public:
@@ -8,9 +10,11 @@ public:
 
 	virtual void FixedUpdate(size_t row, size_t col, Level& level) override;
 
-#ifdef _DEBUG
+
+	virtual void IncreaseFrame() override;
+	virtual void DecreaseFrame() override;
+
 	virtual Tile GetTile() const override;
-#endif
 
 private:
 
@@ -20,5 +24,7 @@ private:
 	};
 
 private:
+	std::vector<Tile> m_Animation;
+	int m_Frame;
 	State m_State;
 };

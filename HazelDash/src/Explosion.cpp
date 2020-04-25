@@ -7,9 +7,9 @@ Explosion::Explosion(Tile explodeTo)
 , m_ExplodeTo(explodeTo)
 {
 	if (explodeTo == Tile::Diamond0) {
-		m_Animation = {Tile::Diamond0, Tile::Diamond1, Tile::Diamond2, Tile::Diamond3}; // TODO
+		m_Animation = {Tile::Smoke0, Tile::Smoke1, Tile::Smoke2, Tile::Diamond5};
 	} else {
-		m_Animation = {Tile::Smoke0, Tile::Smoke1, Tile::Smoke2, Tile::Smoke3}; // TODO
+		m_Animation = {Tile::Smoke0, Tile::Smoke1, Tile::Smoke2, Tile::Smoke3, Tile::Smoke2, Tile::Smoke3, Tile::Smoke2, Tile::Smoke3};
 	}
 }
 

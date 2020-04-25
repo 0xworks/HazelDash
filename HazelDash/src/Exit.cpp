@@ -2,7 +2,7 @@
 #include "Level.h"
 
 Exit::Exit()
-: m_Animation({Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3})
+	: m_Animation({Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3})
 , m_Frame(0)
 , m_AnimationTimeStep(1.0f / 8.0f)
 , m_AnimationAccumulator(0.0f)
@@ -10,8 +10,6 @@ Exit::Exit()
 {}
 
 
-// TODO: duplicates Boulder::FixedUpdate() - Could refactor into base "Fallable" game object?
-//       (or better: Compose GameObjects, and have a "Fallable" behaviour)
 void Exit::FixedUpdate(size_t row, size_t col, Level& level) {
 	if (level.GetScore() >= level.GetScoreRequired()) {
 		m_State = State::Open;

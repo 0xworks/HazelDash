@@ -2,7 +2,8 @@
 #include "Level.h"
 
 Boulder::Boulder()
-: GameObject(Tile::Boulder0)
+: m_Animation({Tile::Boulder0, Tile::Boulder1, Tile::Boulder2, Tile::Boulder3})
+, m_Frame(0)
 , m_State(State::Stationary)
 {}
 
@@ -19,11 +20,13 @@ void Boulder::FixedUpdate(size_t row, size_t col, Level& level) {
 					m_State = State::Falling;
 					level.SwapObjects(row, col - 1, row, col);
 					level.SetUpdated(row, col - 1, true);
+					DecreaseFrame();
 				} else if (!level.GetGameObject(row, col + 1).IsSolid() && !level.GetGameObject(row - 1, col + 1).IsSolid()) {
 					// bounce right
 					m_State = State::Falling;
 					level.SwapObjects(row, col + 1, row, col);
 					level.SetUpdated(row, col + 1, true);
+					IncreaseFrame();
 				} else {
 					m_State = State::Stationary;
 				}
@@ -39,11 +42,17 @@ void Boulder::FixedUpdate(size_t row, size_t col, Level& level) {
 	level.SetUpdated(row, col, true);
 }
 
-#ifdef _DEBUG
-Tile Boulder::GetTile() const {
-	if (m_State == State::Falling) {
-		return Tile::Spare0;
-	}
-	return __super::GetTile();
+
+void Boulder::IncreaseFrame() {
+	m_Frame = (m_Frame + 1) % m_Animation.size();
 }
-#endif
+
+
+void Boulder::DecreaseFrame() {
+	m_Frame = (m_Frame - 1) % m_Animation.size();
+}
+
+
+Tile Boulder::GetTile() const {
+	return m_Animation[m_Frame];
+}

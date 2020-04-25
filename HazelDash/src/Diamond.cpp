@@ -59,10 +59,5 @@ void Diamond::Animate(Hazel::Timestep ts) {
 
 
 Tile Diamond::GetTile() const {
-#ifdef _DEBUG
-	if (m_State == State::Falling) {
-		return Tile::Spare1;
-	}
-#endif
 	return m_Animation[m_Frame];
 }

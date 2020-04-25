@@ -72,6 +72,7 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 			} else if (level.GetGameObject(row, col - 1).IsPushable()) {
 				if (!level.GetGameObject(row - 1, col - 1).IsEmpty() && level.GetGameObject(row, col - 2).IsEmpty()) {
 					if(Random::Uniform0_1() < m_PushProbability) {
+						level.GetGameObject(row, col - 1).DecreaseFrame();
 						level.SwapObjects(row, col - 2, row, col - 1);
 						level.SetUpdated(row, col - 2, true);
 						if (!ctrlPressed) {
@@ -89,6 +90,7 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 			} else if (level.GetGameObject(row, col + 1).IsPushable()) {
 				if (!level.GetGameObject(row - 1, col + 1).IsEmpty() && level.GetGameObject(row, col + 2).IsEmpty()) {
 					if (Random::Uniform0_1() < m_PushProbability) {
+						level.GetGameObject(row, col + 1).IncreaseFrame();
 						level.SwapObjects(row, col + 2, row, col + 1);
 						level.SetUpdated(row, col + 2, true);
 						if (!ctrlPressed) {
