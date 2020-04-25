@@ -2,7 +2,7 @@
 #include "Level.h"
 
 Boulder::Boulder()
-: GameObject(Tile::Boulder)
+: GameObject(Tile::Boulder0)
 , m_State(State::Stationary)
 {}
 

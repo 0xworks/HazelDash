@@ -4,7 +4,7 @@
 static std::vector<std::pair<int, int>> s_Directions = {{0, 1}, {1, 0}, {0, -1}, {-1, 0} };
 
 Firefly::Firefly()
-: m_Animation({Tile::Firefly0, Tile::Firefly1, Tile::Firefly2, Tile::Firefly3, Tile::Firefly4, Tile::Firefly5, Tile::Firefly6, Tile::Firefly7})
+: m_Animation({Tile::Firefly0, Tile::Firefly1, Tile::Firefly2, Tile::Firefly3})
 , m_Frame(0)
 , m_AnimationTimeStep(1.0f / 25.0f)
 , m_AnimationAccumulator(0.0f)

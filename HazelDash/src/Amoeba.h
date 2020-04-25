@@ -13,7 +13,7 @@ public:
 	static std::vector<std::pair<int, int>> Directions;
 
 private:
-	std::vector<Tile> m_Animation = {Tile::Amoeba0, Tile::Amoeba1, Tile::Amoeba2, Tile::Amoeba3, Tile::Amoeba4, Tile::Amoeba5, Tile::Amoeba6, Tile::Amoeba7};
+	std::vector<Tile> m_Animation = {Tile::Smoke0, Tile::Smoke1, Tile::Smoke2, Tile::Smoke3};
 	int m_Frame = 0;
 
 	float m_AnimationTimeStep = 1.0f / 25.0f;

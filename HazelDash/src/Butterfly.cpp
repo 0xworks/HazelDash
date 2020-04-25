@@ -4,7 +4,7 @@
 static std::vector<std::pair<int, int>> s_Directions = {{1, 0}, {0, 1}, {-1, 0}, {0, -1} };
 
 Butterfly::Butterfly()
-: m_Animation({Tile::Butterfly0, Tile::Butterfly1, Tile::Butterfly2, Tile::Butterfly3, Tile::Butterfly4, Tile::Butterfly5, Tile::Butterfly6, Tile::Butterfly7})
+: m_Animation({Tile::Butterfly0, Tile::Butterfly1, Tile::Butterfly2, Tile::Butterfly3})
 , m_Frame(0)
 , m_AnimationTimeStep(1.0f / 25.0f)
 , m_AnimationAccumulator(0.0f)

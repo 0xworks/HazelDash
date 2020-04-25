@@ -43,10 +43,10 @@ void Level::Init(const LevelDefinition& definition) {
 						SetGameObject(row, col, std::make_unique<Firefly>());
 						break;
 					case 'W':
-						SetGameObject(row, col, std::make_unique<GameObject>(Tile::SteelWall));
+						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Metal));
 						break;
 					case 'w':
-						SetGameObject(row, col, std::make_unique<GameObject>(Tile::BrickWall));
+						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Brick));
 						break;
 					case '.':
 						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Dirt));
@@ -118,7 +118,7 @@ void Level::GrowAmoeba(size_t row, size_t col) {
 	SetUpdated(row, col, true);
 	++m_AmoebaCount;
 	if (m_AmoebaCount >= 200) {
-		SolidifyAmoeba(Tile::Boulder);
+		SolidifyAmoeba(Tile::Boulder0);
 	} else {
 		m_PotentialAmoebaPositions.erase(std::make_pair(row, col));
 	
@@ -142,7 +142,7 @@ void Level::SolidifyAmoeba(const Tile solidifyTo) {
 		for (size_t col = 0; col < m_Width; ++col) {
 			GameObject& object = GetGameObject(row, col);
 			if (object.IsAmoeba()) {
-				if (solidifyTo == Tile::Boulder) {
+				if (solidifyTo == Tile::Boulder0) {
 					SetGameObject(row, col, std::make_unique<Boulder>());
 				} else if (solidifyTo == Tile::Diamond0) {
 					SetGameObject(row, col, std::make_unique<Diamond>());

@@ -12,12 +12,12 @@
 
 Player::Player()
 : m_Animations({
-	{ Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle,  Tile::PlayerIdle},
-	{ Tile::PlayerAnim1_0, Tile::PlayerAnim1_1, Tile::PlayerAnim1_2, Tile::PlayerAnim1_3, Tile::PlayerAnim1_4, Tile::PlayerAnim1_5, Tile::PlayerAnim1_6, Tile::PlayerAnim1_7},
-	{ Tile::PlayerAnim2_0, Tile::PlayerAnim2_1, Tile::PlayerAnim2_2, Tile::PlayerAnim2_3, Tile::PlayerAnim2_4, Tile::PlayerAnim2_5, Tile::PlayerAnim2_6, Tile::PlayerAnim2_7},
-	{ Tile::PlayerAnim3_0, Tile::PlayerAnim3_1, Tile::PlayerAnim3_2, Tile::PlayerAnim3_3, Tile::PlayerAnim3_4, Tile::PlayerAnim3_5, Tile::PlayerAnim3_6, Tile::PlayerAnim3_7},
-	{ Tile::PlayerLeft0, Tile::PlayerLeft1, Tile::PlayerLeft2, Tile::PlayerLeft3, Tile::PlayerLeft4, Tile::PlayerLeft5, Tile::PlayerLeft6, Tile::PlayerLeft7},
-	{ Tile::PlayerRight0, Tile::PlayerRight1, Tile::PlayerRight2, Tile::PlayerRight3, Tile::PlayerRight4, Tile::PlayerRight5, Tile::PlayerRight6, Tile::PlayerRight7}
+	{ Tile::PlayerIdle0,  Tile::PlayerIdle0,  Tile::PlayerIdle0,  Tile::PlayerIdle0},
+	{ Tile::PlayerIdle0, Tile::PlayerIdle1, Tile::PlayerIdle2, Tile::PlayerIdle3}, // TODO: idle animations
+	{ Tile::PlayerIdle0, Tile::PlayerIdle1, Tile::PlayerIdle2, Tile::PlayerIdle3}, // TODO: idle animations
+	{ Tile::PlayerIdle0, Tile::PlayerIdle1, Tile::PlayerIdle2, Tile::PlayerIdle3}, // TODO: idle animations
+	{ Tile::PlayerLeft0, Tile::PlayerLeft1, Tile::PlayerLeft2, Tile::PlayerLeft3},
+	{ Tile::PlayerRight0, Tile::PlayerRight1, Tile::PlayerRight2, Tile::PlayerRight3}
 })
 , m_Animation(0)
 , m_Frame(0)

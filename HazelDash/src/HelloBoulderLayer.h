@@ -34,7 +34,7 @@ private:
 private:
 	Hazel::Timestep m_FixedTimestep;
 	ViewPort m_ViewPort;
-	std::array<Hazel::Ref<Hazel::Texture2D>, 96> m_Tiles;
+	std::array<Hazel::Ref<Hazel::Texture2D>, 128> m_Tiles;
 	glm::vec2 m_TileSize;
 	Level m_Level;
 	float m_AccumulatedTs;  // would be better as Hazel::Timestep, but that doesnt support operator +=
