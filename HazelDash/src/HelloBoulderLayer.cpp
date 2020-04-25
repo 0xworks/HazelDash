@@ -24,26 +24,26 @@
 static std::vector<LevelDefinition> levelDefinition = {
 	{ 40, 22, 12, 150,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-		"WP.....r.........................r.....W"
-		"W....................................r.W"
-		"W..r...........................r.......W"
-		"W..d.r...........r.....................W"
-		"W.........r.r...rr......r....r.......r.W"
-		"W..............rrr.....rr..............W"
-		"W.....r........rrr....rrr..............W"
-		"W..............rr.....rrr......rr.....dW"
-		"W.... r   .....r.r....rrr....     .....W"
-		"W....    r......rrrrrrrrr....   r r....W"
-		"W....     r.r..rrrrrrrrrr....     .r...W"
-		"W..r.F    .r...rrrrrrrrr.....    F.....W"
-		"W..............rrr....r.r.....r........W"
-		"W..............rrr.....rr..............W"
-		"W....d..r......rrr....rrr...r..........W"
-		"W...........r..rr.....rrr.......d..r...W"
-		"W..r.....d.r...r......rr...r.....r.....W"
-		"W.r......d............r........rrr.....W"
-		"W......................................W"
-		"W.............B           ........r...XW"
+		"WP........r.............r...rr..r......W"
+		"Wr.....r..........r.............r...r.dW"
+		"W....r..........r..wwwwwwwwwwwwwwwwwwwwW"
+		"W..rr........r..w..r.r....r............W"
+		"W..rd.rr.rr.....w......r.........r.r..rW"
+		"W.rr..r......r..w..rr....rr..r..rw.r..rW"
+		"Wwwwwww.........w....r.rr..r.....w.rr..W"
+		"W.........rr.r..w.r..............wrr...W"
+		"W......r.r.r....wrr.......r.....rw.d.r.W"
+		"W.rrr...........wrdr........r....wdd...W"
+		"Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W"
+		"Wr.r...w....r...w..rrr....rr...r.w....rW"
+		"W....r.w........w......r..rr.r...w.....W"
+		"W......w...r..r.w.....r.r......rrw....rW"
+		"W..r.r.wrr...rdrw..r..r...r......w...rrW"
+		"Wr.....w..r.....w.r....r..rr..r.rw..r.rW"
+		"W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW"
+		"W......wwwwwwwwww.r..r...r...r......r..W"
+		"W..rr.....r.rr....d....r.r.r....r....rrW"
+		"W.r....r.....r...dd...rrr.r...r.r.....XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
 	{ 160, 88, 20, 120,
@@ -174,7 +174,7 @@ HelloBoulderLayer::HelloBoulderLayer()
 , m_WonLevel(false)
 {
 #if 0
-	m_CurrentLevel = 1;
+	m_CurrentLevel = levelDefinition.size() - 2;
 	m_ViewPort = {0.0f, 0.0f, 160.0f, 88.0f};
 #endif
 	m_ViewPort.SetCameraSpeed((1.0f / m_FixedTimestep) - 1.0f);

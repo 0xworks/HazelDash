@@ -93,30 +93,30 @@ enum class Tile {
 	BarrelSpare2,
 	BarrelSpare3,
 	BarrelLast = BarrelSpare3,
-	GoldMetal,
-	GoldDirt,
-	GoldBricks,
-	GoldMud,
-	GoldSpare0,
-	GoldSpare1,
-	GoldSpare2,
-	GoldSpare3,
-	BlueMetal,
-	BlueDirt,
-	BlueBricks,
-	BlueMud,
-	BlueSpare0,
-	BlueSpare1,
-	BlueSpare2,
-	BlueSpare3,
-	Metal,
-	Dirt,
-	Brick,
-	Mud,
+	Metal2,        // not currently in use
+	Dirt2,         // not currently in use
+	Brick2,        // not currently in use
+	Background2,   // not currently in use
 	Spare0,
 	Spare1,
 	Spare2,
 	Spare3,
+	Metal3,      // not currently in use
+	Dirt3,       // not currently in use
+	Brick3,      // not currently in use
+	Background3, // not currently in use
+	Spare4,
+	Spare5,
+	Spare6,
+	Spare7,
+	Metal1,
+	Dirt1,
+	Brick1,
+	Background1, // not currently in use
+	Spare8,
+	Spare9,
+	Spare10,
+	Spare11,
 	Random0,
 	Random1,
 	Random2,
@@ -150,11 +150,11 @@ enum class Tile {
 };
 
 inline bool IsEmpty(Tile tile) {
-	return (tile == Tile::Empty);
+	return tile == Tile::Empty; // || (tile == Tile::Background2) || (tile == Tile::Background2) || (tile == Tile::Background3);
 }
 
 inline bool IsSolid(Tile tile) {
-	return (tile != Tile::Empty);
+	return (!IsEmpty(tile));
 }
 
 inline bool IsPlayer(Tile tile) {
@@ -188,7 +188,7 @@ inline bool IsExplosive(Tile tile) {
 }
 
 inline bool IsExplodable(Tile tile) {
-	return (tile != Tile::GoldMetal) && (tile != Tile::BlueMetal) && (tile != Tile::Metal) && !((tile >= Tile::DoorFirst && tile <= Tile::DoorLast));
+	return (tile != Tile::Metal1) && !((tile >= Tile::DoorFirst && tile <= Tile::DoorLast)); // && (tile != Tile::Metal2) && (tile != Tile::Metal3)
 }
 
 inline bool IsCollectable(Tile tile) {
@@ -196,5 +196,5 @@ inline bool IsCollectable(Tile tile) {
 }
 
 inline bool CanBeOccupied(Tile tile) {
-	return (tile == Tile::Empty) || (tile == Tile::Dirt) || (tile >= Tile::DoorFirst && tile <= Tile::DoorLast) || IsCollectable(tile);
+	return IsEmpty(tile) || (tile == Tile::Dirt1) || (tile >= Tile::DoorFirst && tile <= Tile::DoorLast) || IsCollectable(tile); // || (tile == Tile::Dirt2) || (tile == Tile::Dirt3)
 }

@@ -7,7 +7,7 @@ class Level;
 
 class GameObject {
 public:
-	GameObject(Tile tile = Tile::Dirt) : m_Tile(tile) {}
+	GameObject(Tile tile = Tile::Dirt1) : m_Tile(tile) {}
 
 	virtual ~GameObject() = default;
 

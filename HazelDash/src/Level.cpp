@@ -43,13 +43,13 @@ void Level::Init(const LevelDefinition& definition) {
 						SetGameObject(row, col, std::make_unique<Firefly>());
 						break;
 					case 'W':
-						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Metal));
+						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Metal1));
 						break;
 					case 'w':
-						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Brick));
+						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Brick1));
 						break;
 					case '.':
-						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Dirt));
+						SetGameObject(row, col, std::make_unique<GameObject>(Tile::Dirt1));
 						break;
 					case 'r':
 						SetGameObject(row, col, std::make_unique<Boulder>());
@@ -97,7 +97,7 @@ void Level::SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB) {
 
 
 void Level::Explode(size_t row, size_t col) {
-	Tile explodeTo = Tile::Empty;
+	Tile explodeTo = Tile::Background1;
 	if (GetGameObject(row, col).IsButterfly()) {
 		explodeTo = Tile::Diamond0;
 	}
