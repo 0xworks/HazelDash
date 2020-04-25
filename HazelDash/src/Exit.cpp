@@ -21,11 +21,8 @@ void Exit::FixedUpdate(size_t row, size_t col, Level& level) {
 void Exit::Animate(Hazel::Timestep ts) {
 	m_AnimationAccumulator += ts;
 	if (m_AnimationAccumulator >= m_AnimationTimeStep) {
-		if (m_State == State::Open) {
+		if (m_State == State::Open && m_Frame < (m_Animation.size() - 1)) {
 			++m_Frame;
-			if (m_Frame >= m_Animation.size()) {
-				m_Frame = 0;
-			}
 		}
 		m_AnimationAccumulator = 0.0;
 	}

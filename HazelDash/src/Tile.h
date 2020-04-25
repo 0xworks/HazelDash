@@ -196,5 +196,5 @@ inline bool IsCollectable(Tile tile) {
 }
 
 inline bool CanBeOccupied(Tile tile) {
-	return IsEmpty(tile) || (tile == Tile::Dirt1) || (tile >= Tile::DoorFirst && tile <= Tile::DoorLast) || IsCollectable(tile); // || (tile == Tile::Dirt2) || (tile == Tile::Dirt3)
+	return IsEmpty(tile) || (tile == Tile::Dirt1) || (tile == Tile::DoorLast) || IsCollectable(tile); // || (tile == Tile::Dirt2) || (tile == Tile::Dirt3)
 }
