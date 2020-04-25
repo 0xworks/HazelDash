@@ -174,7 +174,7 @@ inline bool IsFirefly(Tile tile) {
 }
 
 inline bool IsRounded(Tile tile) {
-	return ((tile >= Tile::DiamondFirst) && (tile <= Tile::DiamondLast)) || ((tile >= Tile::BoulderFirst) && (tile <= Tile::BoulderLast)) || ((tile >= Tile::BarrelFirst) && (tile <= Tile::BarrelLast));
+	return ((tile >= Tile::DiamondFirst) && (tile <= Tile::DiamondLast)) || ((tile >= Tile::BoulderFirst) && (tile <= Tile::BoulderLast)) || ((tile >= Tile::BarrelFirst) && (tile <= Tile::BarrelLast)) || (tile == Tile::Brick1);
 }
 
 inline bool IsPushable(Tile tile) {
