@@ -165,8 +165,24 @@ inline bool IsAmoeba(Tile tile) {
 	return ((tile >= Tile::AmoebaFirst) && (tile <= Tile::AmoebaLast));
 }
 
+inline bool IsBarrel(Tile tile) {
+	return ((tile >= Tile::BarrelFirst) && (tile <= Tile::BarrelLast));
+}
+
+inline bool IsBoulder(Tile tile) {
+	return ((tile >= Tile::BoulderFirst) && (tile <= Tile::BoulderLast));
+}
+
 inline bool IsButterfly(Tile tile) {
 	return ((tile >= Tile::ButterflyFirst) && (tile <= Tile::ButterflyLast));
+}
+
+inline bool IsDiamond(Tile tile) {
+	return ((tile >= Tile::DiamondFirst) && (tile <= Tile::DiamondLast));
+}
+
+inline bool IsDoor(Tile tile) {
+	return ((tile >= Tile::DoorFirst) && (tile <= Tile::DoorLast));
 }
 
 inline bool IsFirefly(Tile tile) {
@@ -174,25 +190,25 @@ inline bool IsFirefly(Tile tile) {
 }
 
 inline bool IsRounded(Tile tile) {
-	return ((tile >= Tile::DiamondFirst) && (tile <= Tile::DiamondLast)) || ((tile >= Tile::BoulderFirst) && (tile <= Tile::BoulderLast)) || ((tile >= Tile::BarrelFirst) && (tile <= Tile::BarrelLast)) || (tile == Tile::Brick1);
+	return IsBoulder(tile) || IsBarrel(tile) || IsDiamond(tile) || (tile == Tile::Brick1);
 }
 
 inline bool IsPushable(Tile tile) {
-	return ((tile >= Tile::BoulderFirst) && (tile <= Tile::BoulderLast)) || ((tile >= Tile::BarrelFirst) && (tile <= Tile::BarrelLast));
+	return IsBoulder(tile) || IsBarrel(tile);
 }
 
 // true if this tile will itself explode if caught in an explosion
 // (i.e. chain reaction)
 inline bool IsExplosive(Tile tile) {
-	return IsPlayer(tile) || IsButterfly(tile) || IsFirefly(tile);
+	return IsPlayer(tile) || IsButterfly(tile) || IsFirefly(tile) || IsBarrel(tile);
 }
 
 inline bool IsExplodable(Tile tile) {
-	return (tile != Tile::Metal1) && !((tile >= Tile::DoorFirst && tile <= Tile::DoorLast)); // && (tile != Tile::Metal2) && (tile != Tile::Metal3)
+	return (tile != Tile::Metal1) && !IsDoor(tile); // && (tile != Tile::Metal2) && (tile != Tile::Metal3)
 }
 
 inline bool IsCollectable(Tile tile) {
-	return (tile >= Tile::DiamondFirst) && (tile <= Tile::DiamondLast);
+	return IsDiamond(tile);
 }
 
 inline bool CanBeOccupied(Tile tile) {

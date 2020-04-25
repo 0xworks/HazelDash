@@ -70,6 +70,30 @@ static std::vector<LevelDefinition> levelDefinition = {
 		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
+	{ 40, 22, 9, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP.....................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W.................r................    W"
+		"W....................r.................W"
+		"W...................r..................W"
+		"W..................r...................W"
+		"W.................o....................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W......................................W"
+		"W.....................................XW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
 	{ 160, 88, 20, 120,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.............................................................................................................................................................W"
@@ -194,7 +218,7 @@ HelloBoulderLayer::HelloBoulderLayer()
 , m_AccumulatedTs(0.0f)
 , m_PlayerIsAlive(false)
 , m_GamePaused(false)
-, m_CurrentLevel(1)
+, m_CurrentLevel(2)
 , m_WonLevel(false)
 {
 #if 0

@@ -1,5 +1,6 @@
 #include "Level.h"
 #include "Amoeba.h"
+#include "Barrel.h"
 #include "Boulder.h"
 #include "Butterfly.h"
 #include "Diamond.h"
@@ -56,6 +57,9 @@ void Level::Init(const LevelDefinition& definition) {
 						break;
 					case 'd':
 						SetGameObject(row, col, std::make_unique<Diamond>());
+						break;
+					case 'o':
+						SetGameObject(row, col, std::make_unique<Barrel>());
 						break;
 					default:
 						HZ_ASSERT(ch == ' ', "unknown character in level data");
