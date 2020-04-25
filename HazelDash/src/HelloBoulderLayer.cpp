@@ -46,6 +46,30 @@ static std::vector<LevelDefinition> levelDefinition = {
 		"W.r....r.....r...dd...rrr.r...r.r.....XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
+	{ 40, 22, 9, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP..........r.....w.......r............W"
+		"W.................w....................W"
+		"W.................w.w.......w.w........W"
+		"W.......w.w.......w.wwwwwwwwwwwwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w..       w.r       dW"
+		"WFd     r.r       wwwwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd       W"
+		"W d     r.r       w.wwwwwwwww.wwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       w.w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       ..r       w.w       dW"
+		"W d     r.r       w.wwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd      .W"
+		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
 	{ 160, 88, 20, 120,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.............................................................................................................................................................W"
@@ -170,7 +194,7 @@ HelloBoulderLayer::HelloBoulderLayer()
 , m_AccumulatedTs(0.0f)
 , m_PlayerIsAlive(false)
 , m_GamePaused(false)
-, m_CurrentLevel(0)
+, m_CurrentLevel(1)
 , m_WonLevel(false)
 {
 #if 0
