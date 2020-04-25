@@ -33,6 +33,7 @@ Player::Player()
 
 void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 	State newState = State::Idle;
+	State secondaryState = State::Idle;
 	
 	if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT) || Hazel::Input::IsKeyPressed(HZ_KEY_A)) {
 		newState = State::MovingLeft;
@@ -43,8 +44,10 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 	}
 
 	if (Hazel::Input::IsKeyPressed(HZ_KEY_UP) || Hazel::Input::IsKeyPressed(HZ_KEY_W)) {
+		secondaryState = newState;
 		newState = State::MovingUp;
 	} else if (Hazel::Input::IsKeyPressed(HZ_KEY_DOWN) || Hazel::Input::IsKeyPressed(HZ_KEY_S)) {
+		secondaryState = newState;
 		newState = State::MovingDown;
 	}
 
@@ -65,52 +68,26 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 	size_t oldCol = col;
 	switch (m_State) {
 		case State::MovingLeft:
-			if (level.GetGameObject(row, col - 1).CanBeOccupied()) {
-				if (!ctrlPressed) {
-					--col;
-				}
-			} else if (level.GetGameObject(row, col - 1).IsPushable()) {
-				if (!level.GetGameObject(row - 1, col - 1).IsEmpty() && level.GetGameObject(row, col - 2).IsEmpty()) {
-					if(Random::Uniform0_1() < m_PushProbability) {
-						level.GetGameObject(row, col - 1).DecreaseFrame();
-						level.SwapObjects(row, col - 2, row, col - 1);
-						level.SetUpdated(row, col - 2, true);
-						if (!ctrlPressed) {
-							--col;
-						}
-					}
-				}
-			}
+			TryMove(row, col, 0, -1, level, ctrlPressed);
 			break;
 		case State::MovingRight:
-			if (level.GetGameObject(row, col + 1).CanBeOccupied()) {
-				if (!ctrlPressed) {
-					++col;
-				}
-			} else if (level.GetGameObject(row, col + 1).IsPushable()) {
-				if (!level.GetGameObject(row - 1, col + 1).IsEmpty() && level.GetGameObject(row, col + 2).IsEmpty()) {
-					if (Random::Uniform0_1() < m_PushProbability) {
-						level.GetGameObject(row, col + 1).IncreaseFrame();
-						level.SwapObjects(row, col + 2, row, col + 1);
-						level.SetUpdated(row, col + 2, true);
-						if (!ctrlPressed) {
-							++col;
-						}
-					}
-				}
-			}
+			TryMove(row, col, 0, 1, level, ctrlPressed);
 			break;
 		case State::MovingUp:
-			if (level.GetGameObject(row + 1, col).CanBeOccupied()) {
-				if (!ctrlPressed) {
-					++row;
+			if (!TryMove(row, col, 1, 0, level, ctrlPressed)) {
+				if (secondaryState == State::MovingLeft) {
+					TryMove(row, col, 0, -1, level, ctrlPressed);
+				} else if (secondaryState == State::MovingRight) {
+					TryMove(row, col, 0, 1, level, ctrlPressed);
 				}
 			}
 			break;
 		case State::MovingDown:
-			if (level.GetGameObject(row - 1, col).CanBeOccupied()) {
-				if (!ctrlPressed) {
-					--row;
+			if (!TryMove(row, col, -1, 0, level, ctrlPressed)) {
+				if (secondaryState == State::MovingLeft) {
+					TryMove(row, col, 0, -1, level, ctrlPressed);
+				} else if (secondaryState == State::MovingRight) {
+					TryMove(row, col, 0, 1, level, ctrlPressed);
 				}
 			}
 			break;
@@ -124,6 +101,32 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 		level.SetUpdated(oldRow, oldCol, true);
 		level.SetUpdated(row, col, true);
 	}
+}
+
+
+bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const size_t colOffset, Level& level, const bool ctrlPressed) {
+	bool retVal = false;
+	if (level.GetGameObject(row + rowOffset, col + colOffset).CanBeOccupied()) {
+		retVal = true;
+		if (!ctrlPressed) {
+			row = row + rowOffset;
+			col = col + colOffset;
+		}
+	} else if ((rowOffset == 0) && level.GetGameObject(row, col + colOffset).IsPushable()) {
+		retVal = true;
+		if (!level.GetGameObject(row - 1, col + colOffset).IsEmpty() && level.GetGameObject(row, col + (2 * colOffset)).IsEmpty()) {
+			if (Random::Uniform0_1() < m_PushProbability) {
+				level.GetGameObject(row, col + colOffset).DecreaseFrame();
+				level.SwapObjects(row, col + (2 * colOffset), row, col + colOffset);
+				level.SetUpdated(row, col + (2 * colOffset), true);
+				if (!ctrlPressed) {
+					row = row + rowOffset;
+					col = col + colOffset;
+				}
+			}
+		}
+	}
+	return retVal;
 }
 
 

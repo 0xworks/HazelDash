@@ -34,6 +34,8 @@ private:
 private:
 	bool IsIdle() const;
 
+	bool TryMove(size_t& row, size_t& col, const size_t rowOffset, const size_t colOffset, Level& level, const bool ctrlPressed);
+
 	void SetBlinkState();
 	void ClearBlinkState();
 	void SwapFootTapState();
