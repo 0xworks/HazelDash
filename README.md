@@ -5,6 +5,8 @@ There are many BoulderDash clones out there, and most of them are far better tha
 
 In particular, I wanted something to show off the recent "batch renderer" additions.
 
+Thanks to iHelp (https://github.com/dovker) for the graphics.
+
 ## Build
 Windows only, and Visual Studio 2019.
 
