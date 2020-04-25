@@ -121,20 +121,22 @@ enum class Tile {
 	Random1,
 	Random2,
 	Random3,
-	Spare4,
-	Spare5,
-	Spare6,
-	Spare7,
 	DoorFirst,
 	Door0 = DoorFirst,
 	Door1,
 	Door2,
 	Door3,
 	DoorLast = Door3,
-	Spare8,
-	Spare9,
-	Spare10,
-	Spare11,
+	AmoebaFirst,
+	Amoeba0 = AmoebaFirst,
+	Amoeba1,
+	Amoeba2,
+	Amoeba3,
+	Amoeba4,
+	Amoeba5,
+	Amoeba6,
+	Amoeba7,
+	AmoebaLast = Amoeba7,
 	SmokeFirst,
 	Smoke0 = SmokeFirst,
 	Smoke1,
@@ -160,7 +162,7 @@ inline bool IsPlayer(Tile tile) {
 }
 
 inline bool IsAmoeba(Tile tile) {
-	return ((tile >= Tile::SmokeFirst) && (tile <= Tile::SmokeLast));
+	return ((tile >= Tile::AmoebaFirst) && (tile <= Tile::AmoebaLast));
 }
 
 inline bool IsButterfly(Tile tile) {

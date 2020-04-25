@@ -13,10 +13,10 @@ public:
 	static std::vector<std::pair<int, int>> Directions;
 
 private:
-	std::vector<Tile> m_Animation = {Tile::Smoke0, Tile::Smoke1, Tile::Smoke2, Tile::Smoke3};
+	std::vector<Tile> m_Animation = {Tile::Amoeba0, Tile::Amoeba1, Tile::Amoeba2, Tile::Amoeba3, Tile::Amoeba4, Tile::Amoeba5, Tile::Amoeba6, Tile::Amoeba7};
 	int m_Frame = 0;
 
-	float m_AnimationTimeStep = 1.0f / 25.0f;
+	float m_AnimationTimeStep = 1.0f / 12.5f;
 	float m_AnimationAccumulator = 0.0f;  // would be better as Hazel::Timestep, but that doesnt currently support operator +=
 	float m_GrowProbability = 0.005f;
 };
