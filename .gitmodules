@@ -1,3 +1,6 @@
 [submodule "Hazel"]
 	path = Hazel
 	url = https://github.com/Freeman40/ChernoHazel.git
+[submodule "HazelAudio"]
+	path = HazelAudio
+	url = https://github.com/freeman40/ChernoHazelAudio.git

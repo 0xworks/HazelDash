@@ -26,6 +26,7 @@ outputdir = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 group "Dependencies"
 	include "Hazel/Hazel"
+	include "HazelAudio/HazelAudio"
 	include "Hazel/Hazel/vendor/GLFW"
 	include "Hazel/Hazel/vendor/Glad"
 	include "Hazel/Hazel/vendor/imgui"	
