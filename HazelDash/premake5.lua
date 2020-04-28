@@ -22,10 +22,12 @@ project "HazelDash"
 		"../Hazel/Hazel/vendor/glm",
 		"../Hazel/Hazel/vendor/imgui",
 		"../Hazel/Hazel/vendor/spdlog/include",
+		"../HazelAudio/HazelAudio/src"
 	}
 	
 	links {
-		"Hazel"
+		"Hazel",
+		"HazelAudio"
 	}
 
 	filter "system:windows"
