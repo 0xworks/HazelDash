@@ -243,12 +243,12 @@ void HazelDashLayer::OnAttach() {
 	}
 
 	// Load audio
-	auto backgroundMusic = Hazel::AudioSource::LoadFromFile("assets/audio/BackgroundMusic.mp3", false);
-	backgroundMusic.SetLoop(true);
+	//auto backgroundMusic = Hazel::AudioSource::LoadFromFile("assets/audio/BackgroundMusic.mp3", false);
+	//backgroundMusic.SetLoop(true);
 
 	// Load level
 	LoadLevel(m_CurrentLevel);
-	Hazel::Audio::Play(backgroundMusic); // does it matter if backgroundMusic AudioSource goes out of scope while its still playing?  appears not.
+	//Hazel::Audio::Play(backgroundMusic);
 }
 
 void HazelDashLayer::OnDetach() {

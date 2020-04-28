@@ -13,8 +13,16 @@
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
-	m_MovementSound = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
-	m_PlayerDieSound = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
+
+	m_SoundEffects[SoundEffect::Movement1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
+	m_SoundEffects[SoundEffect::Movement2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
+	m_SoundEffects[SoundEffect::Boulder] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Boulder.ogg"));
+	m_SoundEffects[SoundEffect::Explode1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode1.ogg"));
+	m_SoundEffects[SoundEffect::Explode2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode2.ogg"));
+	m_SoundEffects[SoundEffect::PlayerDie] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
+	m_SoundEffects[SoundEffect::Movement1]->SetGain(0.2f);
+	m_SoundEffects[SoundEffect::Movement2]->SetGain(0.2f);
+
 
 	m_Width = definition.Width;
 	m_Height = definition.Height;
@@ -110,7 +118,7 @@ void Level::Explode(size_t row, size_t col) {
 			if (object.IsExplodable()) {
 				Tile explodeTo = object.IsButterfly()? Tile::Diamond0 : Tile::Empty;
 				if (object.IsPlayer()) {
-					Hazel::Audio::Play(GetPlayerDieSound());
+					PlaySound(SoundEffect::PlayerDie);
 				}
 				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(explodeTo));
 				SetUpdated(row + rowOffset, col + colOffset, true);

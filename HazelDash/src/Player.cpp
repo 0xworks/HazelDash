@@ -108,14 +108,19 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 
 bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const size_t colOffset, Level& level, const bool ctrlPressed) {
 	bool retVal = false;
-	if (level.GetGameObject(row + rowOffset, col + colOffset).CanBeOccupied()) {
+	GameObject& object = level.GetGameObject(row + rowOffset, col + colOffset);
+	if (object.CanBeOccupied()) {
 		retVal = true;
 		if (!ctrlPressed) {
-			Hazel::Audio::Play(level.GetMovementSound()); // does it matter if backgroundMusic AudioSource goes out of scope while its still playing?  appears not.
+			if (object.IsEmpty()) {
+				level.PlaySound(SoundEffect::Movement1);
+			} else {
+				level.PlaySound(SoundEffect::Movement2);
+			}
 			row = row + rowOffset;
 			col = col + colOffset;
 		}
-	} else if ((rowOffset == 0) && level.GetGameObject(row, col + colOffset).IsPushable()) {
+	} else if ((rowOffset == 0) && object.IsPushable()) {
 		retVal = true;
 		if (!level.GetGameObject(row - 1, col + colOffset).IsEmpty() && level.GetGameObject(row, col + (2 * colOffset)).IsEmpty()) {
 			if (Random::Uniform0_1() < m_PushProbability) {
@@ -123,6 +128,7 @@ bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const siz
 				level.SwapObjects(row, col + (2 * colOffset), row, col + colOffset);
 				level.SetUpdated(row, col + (2 * colOffset), true);
 				if (!ctrlPressed) {
+					level.PlaySound(SoundEffect::Boulder);
 					row = row + rowOffset;
 					col = col + colOffset;
 				}

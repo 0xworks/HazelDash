@@ -2,11 +2,13 @@
 
 #include "GameObject.h"
 #include "HazelAudio.h"
+#include "SoundEffect.h"
 
 #include <array>
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 struct LevelDefinition {
@@ -30,8 +32,7 @@ public:
 	size_t GetExitRow() const { return m_ExitRow; }
 	size_t GetExitCol() const { return m_ExitCol; }
 
-	const Hazel::AudioSource& GetMovementSound() { return *m_MovementSound; }
-	const Hazel::AudioSource& GetPlayerDieSound() { return *m_PlayerDieSound; }
+	void PlaySound(SoundEffect sound) { Hazel::Audio::Play(*m_SoundEffects[sound]); }
 
 	// don't call this "GetObject" - because that conflicts with a #define on windows platform...quite annoying!
 	GameObject& GetGameObject(size_t row, size_t col) { return *(m_Objects[(m_Width * row) + col].get()); }
@@ -67,9 +68,8 @@ private:
 	size_t m_ExitCol = 2;
 
 	std::vector<std::unique_ptr<GameObject>> m_Objects;
+	std::unordered_map<SoundEffect, std::unique_ptr<Hazel::AudioSource>> m_SoundEffects;
 	std::vector<bool> m_Updated;
-	std::unique_ptr<Hazel::AudioSource> m_MovementSound;
-	std::unique_ptr<Hazel::AudioSource> m_PlayerDieSound;
 
 	int m_ScoreRequired = 100;
 	int m_Score = 0;
