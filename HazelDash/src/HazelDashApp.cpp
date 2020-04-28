@@ -1,20 +1,20 @@
-#include "HelloBoulderLayer.h"
+#include "HazelDashLayer.h"
 #include "Random.h"
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/EntryPoint.h"
 
-class HelloBoulderApp : public Hazel::Application
+class HazelDashApp : public Hazel::Application
 {
 public:
-	HelloBoulderApp()
+	HazelDashApp()
 	{
 		Random::Init();
-		PushLayer(new HelloBoulderLayer());
+		PushLayer(new HazelDashLayer());
 	}
 
 };
 
 Hazel::Application* Hazel::CreateApplication()
 {
-	return new HelloBoulderApp();
+	return new HazelDashApp();
 }

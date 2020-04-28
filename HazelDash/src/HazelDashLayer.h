@@ -9,11 +9,11 @@
 #include "Hazel/Renderer/Texture.h"
 #include <glm/glm.hpp>
 
-class HelloBoulderLayer : public Hazel::Layer
+class HazelDashLayer : public Hazel::Layer
 {
 public:
-	HelloBoulderLayer();
-	virtual ~HelloBoulderLayer() = default;
+	HazelDashLayer();
+	virtual ~HazelDashLayer() = default;
 
 	virtual void OnAttach() override;
 	virtual void OnDetach() override;
