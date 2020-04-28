@@ -20,8 +20,8 @@ void Level::Init(const LevelDefinition& definition) {
 	m_SoundEffects[SoundEffect::Explode1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode1.ogg"));
 	m_SoundEffects[SoundEffect::Explode2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode2.ogg"));
 	m_SoundEffects[SoundEffect::PlayerDie] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
-	m_SoundEffects[SoundEffect::Movement1]->SetGain(0.2f);
-	m_SoundEffects[SoundEffect::Movement2]->SetGain(0.2f);
+	m_SoundEffects[SoundEffect::Movement1]->SetGain(0.1f);
+	m_SoundEffects[SoundEffect::Movement2]->SetGain(0.1f);
 
 
 	m_Width = definition.Width;
