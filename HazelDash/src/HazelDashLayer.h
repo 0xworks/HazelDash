@@ -7,6 +7,7 @@
 #include "Hazel/Core/Layer.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Renderer/Texture.h"
+
 #include <glm/glm.hpp>
 
 class HazelDashLayer : public Hazel::Layer

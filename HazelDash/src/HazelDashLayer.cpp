@@ -10,6 +10,8 @@
 #include "Hazel/Renderer/RenderCommand.h"
 #include "Hazel/Renderer/Renderer2D.h"
 
+#include "HazelAudio.h"
+
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -240,8 +242,13 @@ void HazelDashLayer::OnAttach() {
 		m_Tiles[i] = Hazel::Texture2D::Create(path);
 	}
 
+	// Load audio
+	auto backgroundMusic = Hazel::AudioSource::LoadFromFile("assets/audio/BackgroundMusic.mp3", false);
+	backgroundMusic.SetLoop(true);
+
 	// Load level
 	LoadLevel(m_CurrentLevel);
+	Hazel::Audio::Play(backgroundMusic); // does it matter if backgroundMusic AudioSource goes out of scope while its still playing?  appears not.
 }
 
 void HazelDashLayer::OnDetach() {

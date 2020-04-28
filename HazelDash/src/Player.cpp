@@ -6,6 +6,8 @@
 #include "Hazel/Core/KeyCodes.h"
 #include "Hazel/Renderer/Renderer2D.h"
 
+#include "HazelAudio.h"
+
 #ifdef _DEBUG
 #include <imgui.h>
 #endif
@@ -109,6 +111,7 @@ bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const siz
 	if (level.GetGameObject(row + rowOffset, col + colOffset).CanBeOccupied()) {
 		retVal = true;
 		if (!ctrlPressed) {
+			Hazel::Audio::Play(level.GetMovementSound()); // does it matter if backgroundMusic AudioSource goes out of scope while its still playing?  appears not.
 			row = row + rowOffset;
 			col = col + colOffset;
 		}

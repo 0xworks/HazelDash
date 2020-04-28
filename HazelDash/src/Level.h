@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameObject.h"
+#include "HazelAudio.h"
 
 #include <array>
 #include <memory>
@@ -28,6 +29,9 @@ public:
 
 	size_t GetExitRow() const { return m_ExitRow; }
 	size_t GetExitCol() const { return m_ExitCol; }
+
+	const Hazel::AudioSource& GetMovementSound() { return *m_MovementSound; }
+	const Hazel::AudioSource& GetPlayerDieSound() { return *m_PlayerDieSound; }
 
 	// don't call this "GetObject" - because that conflicts with a #define on windows platform...quite annoying!
 	GameObject& GetGameObject(size_t row, size_t col) { return *(m_Objects[(m_Width * row) + col].get()); }
@@ -64,12 +68,13 @@ private:
 
 	std::vector<std::unique_ptr<GameObject>> m_Objects;
 	std::vector<bool> m_Updated;
+	std::unique_ptr<Hazel::AudioSource> m_MovementSound;
+	std::unique_ptr<Hazel::AudioSource> m_PlayerDieSound;
 
 	int m_ScoreRequired = 100;
 	int m_Score = 0;
 
 	size_t m_AmoebaCount = 0;
 	std::set<std::pair<size_t, size_t>> m_PotentialAmoebaPositions;
-
 
 };

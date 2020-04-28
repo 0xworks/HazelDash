@@ -13,6 +13,9 @@
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
+	m_MovementSound = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
+	m_PlayerDieSound = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
+
 	m_Width = definition.Width;
 	m_Height = definition.Height;
 	m_Objects.resize(m_Width * m_Height);
@@ -101,14 +104,14 @@ void Level::SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB) {
 
 
 void Level::Explode(size_t row, size_t col) {
-	Tile explodeTo = Tile::Empty;
-	if (GetGameObject(row, col).IsButterfly()) {
-		explodeTo = Tile::Diamond0;
-	}
 	for (int rowOffset = -1; rowOffset <= 1; ++rowOffset) {
 		for (int colOffset = -1; colOffset <= 1; ++colOffset) {
 			GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
 			if (object.IsExplodable()) {
+				Tile explodeTo = object.IsButterfly()? Tile::Diamond0 : Tile::Empty;
+				if (object.IsPlayer()) {
+					Hazel::Audio::Play(GetPlayerDieSound());
+				}
 				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(explodeTo));
 				SetUpdated(row + rowOffset, col + colOffset, true);
 			}
