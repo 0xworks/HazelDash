@@ -1,4 +1,4 @@
-#include "HelloBoulderLayer.h"
+#include "HazelDashLayer.h"
 #include "Amoeba.h"
 #include "Boulder.h"
 #include "Diamond.h"
@@ -210,7 +210,7 @@ static std::vector<LevelDefinition> levelDefinition = {
 	}
 };
 
-HelloBoulderLayer::HelloBoulderLayer()
+HazelDashLayer::HazelDashLayer()
 : Layer("HelloBoulder")
 , m_FixedTimestep(0.125)
 , m_ViewPort(0.0f, 0.0f, 20.0f, 11.0f)
@@ -228,7 +228,7 @@ HelloBoulderLayer::HelloBoulderLayer()
 	m_ViewPort.SetCameraSpeed((1.0f / m_FixedTimestep) - 1.0f);
 }
 
-void HelloBoulderLayer::OnAttach() {
+void HazelDashLayer::OnAttach() {
 	// Load tiles
 	std::string basePath = "assets/textures/tile";
 	std::string extension = ".png";
@@ -244,10 +244,10 @@ void HelloBoulderLayer::OnAttach() {
 	LoadLevel(m_CurrentLevel);
 }
 
-void HelloBoulderLayer::OnDetach() {
+void HazelDashLayer::OnDetach() {
 }
 
-void HelloBoulderLayer::OnUpdate(Hazel::Timestep ts) {
+void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 
 	if (m_GamePaused) {
 		return;
@@ -326,13 +326,13 @@ void HelloBoulderLayer::OnUpdate(Hazel::Timestep ts) {
 	glfwSetWindowTitle((GLFWwindow*)Hazel::Application::Get().GetWindow().GetNativeWindow(), buffer);
 }
 
-void HelloBoulderLayer::OnEvent(Hazel::Event& e) {
+void HazelDashLayer::OnEvent(Hazel::Event& e) {
 	Hazel::EventDispatcher dispatcher(e);
-	dispatcher.Dispatch<Hazel::KeyPressedEvent>(HZ_BIND_EVENT_FN(HelloBoulderLayer::OnKeyPressed));
+	dispatcher.Dispatch<Hazel::KeyPressedEvent>(HZ_BIND_EVENT_FN(HazelDashLayer::OnKeyPressed));
 }
 
 
-bool HelloBoulderLayer::OnKeyPressed(Hazel::KeyPressedEvent& e) {
+bool HazelDashLayer::OnKeyPressed(Hazel::KeyPressedEvent& e) {
 	if (e.GetKeyCode() == HZ_KEY_SPACE) {
 		if (m_PlayerIsAlive) {
 			m_GamePaused = !m_GamePaused;
@@ -346,7 +346,7 @@ bool HelloBoulderLayer::OnKeyPressed(Hazel::KeyPressedEvent& e) {
 }
 
 
-void HelloBoulderLayer::LoadLevel(int level) {
+void HazelDashLayer::LoadLevel(int level) {
 	m_Level.Init(levelDefinition[level]);
 	m_WonLevel = false;
 	m_ViewPort.SetLevelSize((float)m_Level.GetWidth(), (float)m_Level.GetHeight());
@@ -354,7 +354,7 @@ void HelloBoulderLayer::LoadLevel(int level) {
 }
 
 #ifdef _DEBUG
-void HelloBoulderLayer::OnImGuiRender() {
+void HazelDashLayer::OnImGuiRender() {
 	{
 		ImGui::Begin("Game Settings");
 		ImGui::Text("Score: %d", m_Level.GetScore());
