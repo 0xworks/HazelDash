@@ -137,16 +137,22 @@ enum class Tile {
 	Amoeba6,
 	Amoeba7,
 	AmoebaLast = Amoeba7,
-	SmokeFirst,
-	Smoke0 = SmokeFirst,
-	Smoke1,
-	Smoke2,
-	Smoke3,
-	SmokeLast = Smoke3,
+	ExplosionFirst,
+	Explosion0 = ExplosionFirst,
+	Explosion1,
+	Explosion2,
+	Explosion3,
+	Explosion4,
+	Explosion5,
+	Explosion6,
+	Explosion7,
+	ExplosionLast = Explosion7,
+	ExplosionDiamond4,
+	ExplosionDiamond5,
+	ExplosionDiamond6,
 	Spare12,
-	Spare13,
-	Spare14,
-	Spare15
+
+	NumTiles
 };
 
 inline bool IsEmpty(Tile tile) {
@@ -185,6 +191,10 @@ inline bool IsDoor(Tile tile) {
 	return ((tile >= Tile::DoorFirst) && (tile <= Tile::DoorLast));
 }
 
+inline bool IsExplosion(Tile tile) {
+	return (tile >= Tile::ExplosionFirst) && (tile <= Tile::ExplosionLast);
+}
+
 inline bool IsFirefly(Tile tile) {
 	return ((tile >= Tile::FireflyFirst) && (tile <= Tile::FireflyLast));
 }
@@ -204,7 +214,7 @@ inline bool IsExplosive(Tile tile) {
 }
 
 inline bool IsExplodable(Tile tile) {
-	return (tile != Tile::Metal1) && !IsDoor(tile); // && (tile != Tile::Metal2) && (tile != Tile::Metal3)
+	return (tile != Tile::Metal1) && !IsDoor(tile) && !IsExplosion(tile); // && (tile != Tile::Metal2) && (tile != Tile::Metal3)
 }
 
 inline bool IsCollectable(Tile tile) {

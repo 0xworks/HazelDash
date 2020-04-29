@@ -106,13 +106,14 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 
 bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const size_t colOffset, Level& level, const bool ctrlPressed) {
 	bool retVal = false;
-	if (level.GetGameObject(row + rowOffset, col + colOffset).CanBeOccupied()) {
+	GameObject& object = level.GetGameObject(row + rowOffset, col + colOffset);
+	if (object.CanBeOccupied()) {
 		retVal = true;
 		if (!ctrlPressed) {
 			row = row + rowOffset;
 			col = col + colOffset;
 		}
-	} else if ((rowOffset == 0) && level.GetGameObject(row, col + colOffset).IsPushable()) {
+	} else if ((rowOffset == 0) && object.IsPushable()) {
 		retVal = true;
 		if (!level.GetGameObject(row - 1, col + colOffset).IsEmpty() && level.GetGameObject(row, col + (2 * colOffset)).IsEmpty()) {
 			if (Random::Uniform0_1() < m_PushProbability) {

@@ -7,6 +7,7 @@
 #include "Hazel/Core/Layer.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Renderer/Texture.h"
+
 #include <glm/glm.hpp>
 
 class HazelDashLayer : public Hazel::Layer
@@ -34,7 +35,7 @@ private:
 private:
 	Hazel::Timestep m_FixedTimestep;
 	ViewPort m_ViewPort;
-	std::array<Hazel::Ref<Hazel::Texture2D>, 128> m_Tiles;
+	std::array<Hazel::Ref<Hazel::Texture2D>, (size_t)Tile::NumTiles> m_Tiles;
 	glm::vec2 m_TileSize;
 	Level m_Level;
 	float m_AccumulatedTs;  // would be better as Hazel::Timestep, but that doesnt support operator +=

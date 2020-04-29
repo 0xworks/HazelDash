@@ -1,5 +1,6 @@
 #include "HazelDashLayer.h"
 #include "Random.h"
+
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/EntryPoint.h"
 

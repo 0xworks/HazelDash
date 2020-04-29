@@ -13,6 +13,7 @@
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
+
 	m_Width = definition.Width;
 	m_Height = definition.Height;
 	m_Objects.resize(m_Width * m_Height);
@@ -100,16 +101,17 @@ void Level::SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB) {
 }
 
 
-void Level::Explode(size_t row, size_t col) {
-	Tile explodeTo = Tile::Empty;
-	if (GetGameObject(row, col).IsButterfly()) {
+void Level::Explode(size_t row, size_t col, Tile explodeTo) {
+	const GameObject& object = GetGameObject(row, col);
+	if(object.IsButterfly()) {
 		explodeTo = Tile::Diamond0;
 	}
 	for (int rowOffset = -1; rowOffset <= 1; ++rowOffset) {
 		for (int colOffset = -1; colOffset <= 1; ++colOffset) {
-			GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
+			const GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
 			if (object.IsExplodable()) {
-				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(explodeTo));
+				bool isChainReaction = object.IsExplosive() && !object.IsPlayer() && ((rowOffset != 0) || (colOffset != 0));
+				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(isChainReaction? object.IsButterfly()? Tile::Diamond0 : Tile::Empty : explodeTo, isChainReaction));
 				SetUpdated(row + rowOffset, col + colOffset, true);
 			}
 		}

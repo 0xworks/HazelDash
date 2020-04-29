@@ -6,6 +6,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 struct LevelDefinition {
@@ -39,7 +40,7 @@ public:
 
 	void SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB);
 
-	void Explode(size_t row, size_t col);
+	void Explode(size_t row, size_t col, Tile explodeTo = Tile::Empty);
 
 	void GrowAmoeba(size_t row, size_t col);
 	void SolidifyAmoeba(const Tile solidifyTo);
@@ -70,6 +71,5 @@ private:
 
 	size_t m_AmoebaCount = 0;
 	std::set<std::pair<size_t, size_t>> m_PotentialAmoebaPositions;
-
 
 };
