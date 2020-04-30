@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "HazelDashAudio.h"
 #include "Level.h"
 #include "Random.h"
 
@@ -96,6 +97,7 @@ void Player::FixedUpdate(size_t row, size_t col, Level& level) {
 	}
 	if ((row != oldRow) || (col != oldCol)) {
 		if (level.GetGameObject(row, col).IsCollectable()) {
+			HazelDashAudio::PlaySound(SoundEffect::Collect);
 			level.IncreaseScore();
 		}
 		level.SwapObjects(oldRow, oldCol, row, col);
@@ -113,9 +115,9 @@ bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const siz
 		retVal = true;
 		if (!ctrlPressed) {
 			if (object.IsEmpty()) {
-				level.PlaySound(SoundEffect::Movement1);
+				HazelDashAudio::PlaySound(SoundEffect::Movement1);
 			} else {
-				level.PlaySound(SoundEffect::Movement2);
+				HazelDashAudio::PlaySound(SoundEffect::Movement2);
 			}
 			row = row + rowOffset;
 			col = col + colOffset;
@@ -127,8 +129,12 @@ bool Player::TryMove(size_t& row, size_t& col, const size_t rowOffset, const siz
 				level.GetGameObject(row, col + colOffset).DecreaseFrame();
 				level.SwapObjects(row, col + (2 * colOffset), row, col + colOffset);
 				level.SetUpdated(row, col + (2 * colOffset), true);
+				if (object.IsBarrel()) {
+					HazelDashAudio::PlaySound(SoundEffect::Barrel);
+				} else {
+					HazelDashAudio::PlaySound(SoundEffect::Boulder);
+				}
 				if (!ctrlPressed) {
-					level.PlaySound(SoundEffect::Boulder);
 					row = row + rowOffset;
 					col = col + colOffset;
 				}

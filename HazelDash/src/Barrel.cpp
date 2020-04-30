@@ -1,4 +1,5 @@
 #include "Barrel.h"
+#include "HazelDashAudio.h"
 #include "Level.h"
 
 void Barrel::FixedUpdate(size_t row, size_t col, Level& level) {
@@ -10,6 +11,9 @@ void Barrel::FixedUpdate(size_t row, size_t col, Level& level) {
 		} else if(m_FallenRows >= m_FallLimit) {
 			level.Explode(row, col);
 		} else {
+			if (m_State == State::Falling) {
+				HazelDashAudio::PlaySound(SoundEffect::Barrel);
+			}
 			if (objectBelow.IsRounded()) {
 				if (!level.GetGameObject(row, col - 1).IsSolid() && !level.GetGameObject(row - 1, col - 1).IsSolid()) {
 					// bounce left

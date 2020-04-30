@@ -7,21 +7,13 @@
 #include "Exit.h"
 #include "Explosion.h"
 #include "Firefly.h"
+#include "HazelDashAudio.h"
 #include "Player.h"
 
 #include "Hazel/Core/Core.h"
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
-	m_SoundEffects[SoundEffect::Movement1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
-	m_SoundEffects[SoundEffect::Movement2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
-	m_SoundEffects[SoundEffect::Boulder] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Boulder.ogg"));
-	m_SoundEffects[SoundEffect::Explode1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode1.ogg"));
-	m_SoundEffects[SoundEffect::Explode2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode2.ogg"));
-	m_SoundEffects[SoundEffect::PlayerDie] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
-	m_SoundEffects[SoundEffect::Movement1]->SetGain(0.1f);
-	m_SoundEffects[SoundEffect::Movement2]->SetGain(0.1f);
-
 	m_Width = definition.Width;
 	m_Height = definition.Height;
 	m_Objects.resize(m_Width * m_Height);
@@ -113,13 +105,18 @@ void Level::Explode(size_t row, size_t col, Tile explodeTo) {
 	const GameObject& object = GetGameObject(row, col);
 	if(object.IsButterfly()) {
 		explodeTo = Tile::Diamond0;
+		HazelDashAudio::PlaySound(SoundEffect::Explode2);
+	} else if (object.IsPlayer()) {
+		HazelDashAudio::PlaySound(SoundEffect::PlayerDie);
+	} else {
+		HazelDashAudio::PlaySound(SoundEffect::Explode1);
 	}
 	for (int rowOffset = -1; rowOffset <= 1; ++rowOffset) {
 		for (int colOffset = -1; colOffset <= 1; ++colOffset) {
 			const GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
 			if (object.IsExplodable()) {
 				if (object.IsPlayer()) {
-					PlaySound(SoundEffect::PlayerDie);
+					HazelDashAudio::PlaySound(SoundEffect::PlayerDie);
 				}
 				bool isChainReaction = object.IsExplosive() && !object.IsPlayer() && ((rowOffset != 0) || (colOffset != 0));
 				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(isChainReaction? object.IsButterfly()? Tile::Diamond0 : Tile::Empty : explodeTo, isChainReaction));

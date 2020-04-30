@@ -1,5 +1,8 @@
 #include "Boulder.h"
+#include "HazelDashAudio.h"
 #include "Level.h"
+
+#include "HazelAudio.h"
 
 Boulder::Boulder()
 : m_Animation({Tile::Boulder0, Tile::Boulder1, Tile::Boulder2, Tile::Boulder3})
@@ -14,6 +17,9 @@ void Boulder::FixedUpdate(size_t row, size_t col, Level& level) {
 		if (m_State == State::Falling && objectBelow.IsExplosive()) {
 			level.Explode(row - 1, col);
 		} else {
+			if (m_State == State::Falling) {
+				HazelDashAudio::PlaySound(SoundEffect::Boulder);
+			}
 			if (objectBelow.IsRounded()) {
 				if (!level.GetGameObject(row, col - 1).IsSolid() && !level.GetGameObject(row - 1, col - 1).IsSolid()) {
 					// bounce left

@@ -2,6 +2,7 @@
 #include "Amoeba.h"
 #include "Boulder.h"
 #include "Diamond.h"
+#include "HazelDashAudio.h"
 #include "Player.h"
 
 #include "Hazel/Core/Application.h"
@@ -242,13 +243,10 @@ void HazelDashLayer::OnAttach() {
 		m_Tiles[i] = Hazel::Texture2D::Create(path);
 	}
 
-	// Load audio
-	auto backgroundMusic = Hazel::AudioSource::LoadFromFile("assets/audio/BackgroundMusic.mp3", false);
-	backgroundMusic.SetLoop(true);
+	HazelDashAudio::Init();
 
 	// Load level
 	LoadLevel(m_CurrentLevel);
-	Hazel::Audio::Play(backgroundMusic);
 }
 
 void HazelDashLayer::OnDetach() {
