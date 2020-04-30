@@ -4,8 +4,11 @@
 void Barrel::FixedUpdate(size_t row, size_t col, Level& level) {
 	GameObject& objectBelow = level.GetGameObject(row - 1, col);
 	if (objectBelow.IsSolid()) {
-		if (m_State == State::Falling && (objectBelow.IsExplosive() || (m_FallenRows > m_FallLimit))) {
+		if (m_State == State::Falling && objectBelow.IsExplosive()) {
+			level.SetGameObject(row, col, std::make_unique<GameObject>(Tile::Empty));
 			level.Explode(row - 1, col);
+		} else if(m_FallenRows >= m_FallLimit) {
+			level.Explode(row, col);
 		} else {
 			if (objectBelow.IsRounded()) {
 				if (!level.GetGameObject(row, col - 1).IsSolid() && !level.GetGameObject(row - 1, col - 1).IsSolid()) {

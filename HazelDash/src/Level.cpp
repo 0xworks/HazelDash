@@ -13,7 +13,6 @@
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
-
 	m_SoundEffects[SoundEffect::Movement1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
 	m_SoundEffects[SoundEffect::Movement2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Movement.ogg"));
 	m_SoundEffects[SoundEffect::Boulder] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Boulder.ogg"));
@@ -22,7 +21,6 @@ void Level::Init(const LevelDefinition& definition) {
 	m_SoundEffects[SoundEffect::PlayerDie] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));
 	m_SoundEffects[SoundEffect::Movement1]->SetGain(0.1f);
 	m_SoundEffects[SoundEffect::Movement2]->SetGain(0.1f);
-
 
 	m_Width = definition.Width;
 	m_Height = definition.Height;
@@ -111,16 +109,20 @@ void Level::SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB) {
 }
 
 
-void Level::Explode(size_t row, size_t col) {
+void Level::Explode(size_t row, size_t col, Tile explodeTo) {
+	const GameObject& object = GetGameObject(row, col);
+	if(object.IsButterfly()) {
+		explodeTo = Tile::Diamond0;
+	}
 	for (int rowOffset = -1; rowOffset <= 1; ++rowOffset) {
 		for (int colOffset = -1; colOffset <= 1; ++colOffset) {
-			GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
+			const GameObject& object = GetGameObject(row + rowOffset, col + colOffset);
 			if (object.IsExplodable()) {
-				Tile explodeTo = object.IsButterfly()? Tile::Diamond0 : Tile::Empty;
 				if (object.IsPlayer()) {
 					PlaySound(SoundEffect::PlayerDie);
 				}
-				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(explodeTo));
+				bool isChainReaction = object.IsExplosive() && !object.IsPlayer() && ((rowOffset != 0) || (colOffset != 0));
+				SetGameObject(row + rowOffset, col + colOffset, std::make_unique<Explosion>(isChainReaction? object.IsButterfly()? Tile::Diamond0 : Tile::Empty : explodeTo, isChainReaction));
 				SetUpdated(row + rowOffset, col + colOffset, true);
 			}
 		}

@@ -24,6 +24,7 @@ public:
 	bool IsSolid() const { return ::IsSolid(GetTile()); }
 	bool IsPlayer() const { return ::IsPlayer(GetTile()); }
 	bool IsAmoeba() const { return ::IsAmoeba(GetTile()); }
+	bool IsBarrel() const { return ::IsBarrel(GetTile()); }
 	bool IsButterfly() const { return ::IsButterfly(GetTile()); }
 	bool IsRounded() const { return ::IsRounded(GetTile()); }
 	bool IsPushable() const { return ::IsPushable(GetTile()); }

@@ -44,7 +44,7 @@ public:
 
 	void SwapObjects(size_t rowA, size_t colA, size_t rowB, size_t colB);
 
-	void Explode(size_t row, size_t col);
+	void Explode(size_t row, size_t col, Tile explodeTo = Tile::Empty);
 
 	void GrowAmoeba(size_t row, size_t col);
 	void SolidifyAmoeba(const Tile solidifyTo);
