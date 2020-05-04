@@ -7,6 +7,8 @@ In particular, I wanted something to show off the recent "batch renderer" additi
 
 Thanks to iHelp (https://github.com/dovker) for the graphics.
 
+Thanks to Vineet (https://github.com/vineethero) for the sound effects.  Background music by The Cherno himself!
+
 ## Build
 Windows only, and Visual Studio 2019.
 
