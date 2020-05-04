@@ -1,5 +1,5 @@
 # HazelDash
-A 2D demo game project made with the Hazel engine and based on the popular [Boulder Dash](https://boulder-dash.com) game from the 1980's.
+A 2D demo game project made with the [Hazel engine](https://github.com/TheCherno/Hazel) and based on the popular [Boulder Dash](https://boulder-dash.com) game from the 1980's.
 
 There are many BoulderDash clones out there, and most of them are far better than this one.  The goal of this repository is not to make the perfect BoulderDash clone, but rather just to make something, for educational purposes, using the Hazel game engine.  Check out the series if you havent already - [TheCherno's game programming series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT).
 
