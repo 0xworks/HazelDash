@@ -16,6 +16,7 @@ public:
 		m_SoundEffects[SoundEffect::Collect] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Collect.ogg"));
 		m_SoundEffects[SoundEffect::Barrel] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Barrel.ogg"));
 		m_SoundEffects[SoundEffect::Boulder] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Boulder.ogg"));
+		m_SoundEffects[SoundEffect::Diamond] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Diamond.ogg"));
 		m_SoundEffects[SoundEffect::Explode1] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode1.ogg"));
 		m_SoundEffects[SoundEffect::Explode2] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/Explode2.ogg"));
 		m_SoundEffects[SoundEffect::PlayerDie] = std::make_unique<Hazel::AudioSource>(Hazel::AudioSource::LoadFromFile("assets/audio/PlayerDie.ogg"));

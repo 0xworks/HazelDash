@@ -1,4 +1,5 @@
 #include "Diamond.h"
+#include "HazelDashAudio.h"
 #include "Level.h"
 
 Diamond::Diamond()
@@ -18,6 +19,9 @@ void Diamond::FixedUpdate(size_t row, size_t col, Level& level) {
 		if (m_State == State::Falling && objectBelow.IsExplosive()) {
 			level.Explode(row - 1, col);
 		} else {
+			if (m_State == State::Falling) {
+				HazelDashAudio::PlaySound(SoundEffect::Diamond);
+			}
 			if (objectBelow.IsRounded()) {
 				if (!level.GetGameObject(row, col - 1).IsSolid() && !level.GetGameObject(row - 1, col - 1).IsSolid()) {
 					// bounce left

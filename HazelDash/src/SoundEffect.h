@@ -6,6 +6,7 @@ enum class SoundEffect {
 	Collect,
 	Barrel,
 	Boulder,
+	Diamond,
 	PlayerDie,
 	Explode1,
 	Explode2,
