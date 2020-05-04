@@ -7,8 +7,6 @@ In particular, I wanted something to show off the recent "batch renderer" additi
 
 Thanks to iHelp (https://github.com/dovker) for the graphics.
 
-Thanks to Vineet (https://github.com/vineethero) for the sound effects.  Background music by The Cherno himself!
-
 ## Repository Structure
 Code in the master branch uses features that are currently available in the master branch of Hazel engine.  The intention is to keep this up to date with the game-engine series.  So as new features are added to the game engine, so will the master branch of this repo be updated.
 Other branches of this repo use features that have not yet been covered in the game-engine series, and are more "experimental" in nature.  Use with caution!
