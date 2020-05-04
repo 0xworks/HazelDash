@@ -6,6 +6,7 @@ There are many BoulderDash clones out there, and most of them are far better tha
 In particular, I wanted something to show off the recent "batch renderer" additions.
 
 Thanks to iHelp (https://github.com/dovker) for the graphics.
+
 Thanks to Vineet (https://github.com/vineethero) for the sound effects.  Background music by The Cherno himeself!
 
 ## Repository Structure
