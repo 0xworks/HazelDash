@@ -9,7 +9,6 @@
 #include "Firefly.h"
 #include "Player.h"
 
-#include "Hazel/Core/Core.h"
 #include "Hazel/Core/Log.h"
 
 void Level::Init(const LevelDefinition& definition) {
