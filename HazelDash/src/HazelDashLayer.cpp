@@ -221,7 +221,7 @@ HazelDashLayer::HazelDashLayer()
 , m_AccumulatedTs(0.0f)
 , m_PlayerIsAlive(false)
 , m_GamePaused(false)
-, m_CurrentLevel(2)
+, m_CurrentLevel(0)
 , m_WonLevel(false)
 {
 #if 0
@@ -262,6 +262,8 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 		LoadLevel(++m_CurrentLevel);
 	}
 
+	Hazel::Renderer2D::ResetStats();
+	Hazel::Renderer2D::StatsBeginFrame();
 
 	// Update game level on fixed timestep
 	m_AccumulatedTs += ts;
@@ -289,8 +291,6 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 
 	m_ViewPort.Update(ts);
 
-	Hazel::Renderer2D::ResetStats();
-	Hazel::Renderer2D::StatsBeginFrame();
 
 	// Render
 	Hazel::RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1});
