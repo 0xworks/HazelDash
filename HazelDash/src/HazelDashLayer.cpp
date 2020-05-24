@@ -322,7 +322,7 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 	float averageRenderTime = stats.TotalFrameRenderTime / stats.FrameRenderTime.size(); // nb: wont be accurate until we have gathered at least stats.FrameRenderTime().size() results
 	float averageFPS = 1.0f / averageRenderTime;
 	char buffer[64];
-	sprintf(buffer, "Average frame render time: %8.5f (%5.0f fps)", averageRenderTime, averageFPS);
+	sprintf_s(buffer, 64, "Average frame render time: %8.5f (%5.0f fps)", averageRenderTime, averageFPS);
 	glfwSetWindowTitle((GLFWwindow*)Hazel::Application::Get().GetWindow().GetNativeWindow(), buffer);
 }
 
