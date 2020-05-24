@@ -14,6 +14,11 @@ project "HazelDash"
 		"src/**.cpp"
 	}
 
+	defines
+	{
+		"_SILENCE_CXX17_RESULT_OF_DEPRECATION_WARNING"
+	}
+
 	includedirs
 	{
 		"src",

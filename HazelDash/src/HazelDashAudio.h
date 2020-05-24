@@ -2,7 +2,6 @@
 #include "SoundEffect.h"
 
 #include "Hazel/Core/Log.h"
-#include "Hazel/Core/Core.h"
 
 #include <memory>
 #include <unordered_map>
