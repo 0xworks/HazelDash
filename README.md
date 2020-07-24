@@ -3,11 +3,15 @@ A 2D demo game project made with the [Hazel engine](https://github.com/TheCherno
 
 As featured in episode 65 of [TheCherno's Game Engine series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT).  Check it out if you haven't already.
 
-Sharp eyed people may notice that the graphics are different here to the ones featured in the youtube clip.  Thanks to iHelp (https://github.com/dovker) for this version of the  graphics.  If you wish for a more authentic retro "Boulder Dash" look, then you can find the original assets on the internet and it is a simple matter to incorporate them into a fork of this code. 
+This branch uses Hazel code as it was at episode 65 of the series.
+
+Sharp eyed people may notice that the graphics and levels are different here to the ones featured in the youtube clip.  Thanks to iHelp (https://github.com/dovker) for this version of the  graphics.
+
+If you wish for a more authentic retro "Boulder Dash" look, then you can find the original assets on the internet and it is a simple matter to incorporate them into a fork of this code. 
 
 There are many BoulderDash clones out there, and most of them are far better than this one.  The goal of this repository is not to make the perfect BoulderDash clone, but rather just to make something, for educational purposes, using the Hazel game engine.  Check out the series if you havent already - [TheCherno's Game Engine series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT).
 
-In particular, I wanted something to show off the recent "batch renderer" additions.
+In particular, I wanted something to show off the "batch renderer" developed in episodes 61 to 64.
 
 
 ## Repository Structure
