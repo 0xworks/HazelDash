@@ -15,11 +15,11 @@ In particular, I wanted something to show off the "batch renderer" developed in 
 
 
 ## Repository Structure
-Code in the master branch uses features that are currently available in the master branch of Hazel engine.  The intention is to keep this up to date with the game-engine series.  So as new features are added to the game engine, so will the master branch of this repo be updated.
-Other branches of this repo use features that have not yet been covered in the game-engine series, and are more "experimental" in nature.  Use with caution!
+This is the Game-Engine-Series-Episode-65 branch of the repository.
+Refer README.md in the master branch for details of what the different branches are about.
 
 ## Build
-Windows only, and Visual Studio 2019.
+Only Visual Studio 2019 on Windows has been tested.
 
 * Clone the repository with `git clone --recursive https://github.com/Freeman40/HazelDash`
 * Run the script `VS2019-GenProjects.bat` from the Build subdirectory
