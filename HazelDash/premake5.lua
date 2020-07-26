@@ -42,6 +42,15 @@ project "HazelDash"
 		runtime "Debug"
 		symbols "on"
 
+	filter "configurations:Profile"
+		defines
+		{
+			"HZ_PROFILE",
+			"TRACY_ENABLE"
+		}
+		runtime "Release"
+		optimize "on"
+
 	filter "configurations:Release"
 		defines "HZ_RELEASE"
 		runtime "Release"

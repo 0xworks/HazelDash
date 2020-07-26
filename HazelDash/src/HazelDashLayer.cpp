@@ -393,7 +393,7 @@ void HazelDashLayer::OnDetach() {
 
 
 void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
-
+	HZ_PROFILE_FUNCTION();
 	if (m_GamePaused) {
 		return;
 	}
@@ -405,49 +405,26 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 	Hazel::Renderer2D::ResetStats();
 	Hazel::Renderer2D::StatsBeginFrame();
 
-	{
-		HZ_PROFILE_SCOPE("Update");
-		m_FixedUpdateAccumulatedTs += ts;
-		if (m_FixedUpdateAccumulatedTs > m_FixedTimestep) {
-			//
-			// Each of these functions is a "system" that operates on a set of game entities.
-			// I envisage these will become some sort of scripted game-logic in the future...
-			//
-			// These systems are updated on a fixed timestep
-			PhysicsFixedUpdate();
-			PlayerControllerFixedUpdate();
-			EnemiesFixedUpdate();
-			AmoebaFixedUpdate();
-			m_FixedUpdateAccumulatedTs = 0.0;
-		}
+	m_FixedUpdateAccumulatedTs += ts;
+	if (m_FixedUpdateAccumulatedTs > m_FixedTimestep) {
+		//
+		// Each of these functions is a "system" that operates on a set of game entities.
+		// I envisage these will become some sort of scripted game-logic in the future...
+		//
+		// These systems are updated on a fixed timestep
+		PhysicsFixedUpdate();
+		PlayerControllerFixedUpdate();
+		EnemiesFixedUpdate();
+		AmoebaFixedUpdate();
+		m_FixedUpdateAccumulatedTs = 0.0;
 	}
 
 	// These systems update as fast as they like
-	{
-		HZ_PROFILE_SCOPE("PlayerController::Update");
-		PlayerControllerUpdate(ts);
-	}
-	{
-		HZ_PROFILE_SCOPE("Exploder::Update");
-		ExploderUpdate(ts);
-	}
-	{
-		HZ_PROFILE_SCOPE("Animate");
-		AnimatorUpdate(ts);
-	}
-
-	{
-		HZ_PROFILE_SCOPE("CameraController::Update");
-		CameraControllerUpdate(ts);
-	}
-
-	{
-		HZ_PROFILE_SCOPE("Render");
-		// Having an independent "Render" system like this is inefficient.
-		// Because the renderer iterates all renderable entities, and has to check (for each one) whether it is in the viewport.
-		// It would be more efficient to be able to iterate over just the entities that are in the viewport...
-		RendererUpdate(ts);
-	}
+	PlayerControllerUpdate(ts);
+	ExploderUpdate(ts);
+	AnimatorUpdate(ts);
+	CameraControllerUpdate(ts);
+	RendererUpdate(ts);
 
 	HZ_PROFILE_FRAMEMARKER();
 
@@ -544,6 +521,7 @@ void HazelDashLayer::LoadScene(int level) {
 
 
 void HazelDashLayer::PhysicsFixedUpdate() {
+	HZ_PROFILE_FUNCTION();
 	// Note: To get the behaviour of the original DB game, the "physics" system must evaluate
 	//       the entities in level top-down order.
 	//       However, the ECS will not do that.
@@ -606,6 +584,8 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 
 
 void HazelDashLayer::PlayerControllerFixedUpdate() {
+	HZ_PROFILE_FUNCTION();
+
 	static const Position Left = {0, -1};
 	static const Position Right = {0, 1};
 	static const Position Up = {1, 0};
@@ -691,6 +671,7 @@ void HazelDashLayer::PlayerControllerFixedUpdate() {
 
 
 void HazelDashLayer::PlayerControllerUpdate(Hazel::Timestep ts) {
+	HZ_PROFILE_FUNCTION();
 	m_Scene.m_Registry.group<PlayerState>(entt::get<Position, Animation>).each([this] (auto& state, auto& pos, auto& animation) {
 		if (animation.CurrentFrame == (animation.Frames.size() - 1)) {
 			if (IsIdle(state)) {
@@ -774,6 +755,8 @@ void HazelDashLayer::OnIncreaseScore() {
 
 
 void HazelDashLayer::EnemiesFixedUpdate() {
+	HZ_PROFILE_FUNCTION();
+	
 	static std::array<Position, 4> Directions {
 		Position{-1,  0},
 		Position{ 0, -1},
@@ -817,6 +800,8 @@ void HazelDashLayer::EnemiesFixedUpdate() {
 
 
 void HazelDashLayer::OnExplode(const Position& pos) {
+	HZ_PROFILE_FUNCTION();
+
 	// TODO: placeholder code.  Should be done with "proper" events at some point
 
 	static std::array<Position, 9> Offsets = {
@@ -864,6 +849,8 @@ void HazelDashLayer::OnExplode(const Position& pos) {
 
 
 void HazelDashLayer::AmoebaFixedUpdate() {
+	HZ_PROFILE_FUNCTION();
+
 	static const std::array<Position, 4> Directions = {
 		Position{-1,  0},
 		Position{ 0, -1},
@@ -936,7 +923,8 @@ void HazelDashLayer::OnSolidify(const Tile solidifyTo) {
 
 
 void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
-	//
+	HZ_PROFILE_FUNCTION();
+
 	// When we get here, other systems are finished iterating.
 	// It is now safe to destroy the game entities at position of explosion entities
 	m_Scene.m_Registry.group<Explosion>(entt::get<Position, Animation, Tile>).each([this] (const auto entityHandle, auto& explosion, auto& pos, auto& animation, auto& tile) {
@@ -962,6 +950,8 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 
 
 void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
+	HZ_PROFILE_FUNCTION();
+
 	m_AnimatorAccumulatedTs += ts;
 	if (m_AnimatorAccumulatedTs > m_AnimationTimestep) {
 		m_AnimatorAccumulatedTs = 0.0f;
@@ -977,12 +967,15 @@ void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
 
 
 void HazelDashLayer::CameraControllerUpdate(Hazel::Timestep ts) {
+	HZ_PROFILE_FUNCTION();
 	// TODO: placeholder code.  Camera and Viewport may become entities and components at some point
 	m_ViewPort.Update(ts);
 }
 
 
 void HazelDashLayer::RendererUpdate(Hazel::Timestep ts) {
+	HZ_PROFILE_FUNCTION();
+
 	static glm::vec2 tileSize {1.0f, 1.0f};
 
 	Hazel::RenderCommand::Clear();
