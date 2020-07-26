@@ -33,7 +33,7 @@
 // Otherwise set STARTING_LEVEL to the level index (from levelDefinition)
 // that you want to start on (and will use normal sized viewport)
 #define PERFORMANCE_TEST 0
-#define STARTING_LEVEL 1
+#define STARTING_LEVEL 0
 
 struct LevelDefinition {
 	int Width;
