@@ -248,6 +248,7 @@ void HazelDashLayer::OnDetach() {
 }
 
 void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
+	HZ_PROFILE_FUNCTION();
 
 	if (m_GamePaused) {
 		return;
@@ -257,28 +258,34 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 		LoadLevel(++m_CurrentLevel);
 	}
 
+	{
+		HZ_PROFILE_SCOPE("Update");
+		// Update game level on fixed timestep
 
-	// Update game level on fixed timestep
-	m_AccumulatedTs += ts;
-	if (m_AccumulatedTs > m_FixedTimestep) {
-		m_Level.ClearUpdated();
-		for (size_t row = 0; row < m_Level.GetHeight(); ++row) {
-			for (size_t col = 0; col < m_Level.GetWidth(); ++col) {
-				
-				// the "physics" work better if we go from top down.
-				size_t flipRow = m_Level.GetHeight() - (row + 1);
-				if(!m_Level.IsUpdated(flipRow, col)) {
-					m_Level.GetGameObject(flipRow, col).FixedUpdate(flipRow, col, m_Level);
+		m_AccumulatedTs += ts;
+		if (m_AccumulatedTs > m_FixedTimestep) {
+			m_Level.ClearUpdated();
+			for (size_t row = 0; row < m_Level.GetHeight(); ++row) {
+				for (size_t col = 0; col < m_Level.GetWidth(); ++col) {
+
+					// the "physics" work better if we go from top down.
+					size_t flipRow = m_Level.GetHeight() - (row + 1);
+					if (!m_Level.IsUpdated(flipRow, col)) {
+						m_Level.GetGameObject(flipRow, col).FixedUpdate(flipRow, col, m_Level);
+					}
 				}
 			}
+			m_AccumulatedTs = 0.0;
 		}
-		m_AccumulatedTs = 0.0;
 	}
 
-	// Animate
-	for (size_t row = 0; row < m_Level.GetHeight(); ++row) {
-		for (size_t col = 0; col < m_Level.GetWidth(); ++col) {
-			m_Level.GetGameObject(row, col).Animate(ts);
+	{
+		HZ_PROFILE_SCOPE("Animate");
+		// Animate
+		for (size_t row = 0; row < m_Level.GetHeight(); ++row) {
+			for (size_t col = 0; col < m_Level.GetWidth(); ++col) {
+				m_Level.GetGameObject(row, col).Animate(ts);
+			}
 		}
 	}
 
@@ -287,21 +294,22 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 	Hazel::Renderer2D::ResetStats();
 	Hazel::Renderer2D::StatsBeginFrame();
 
-	// Render
-	Hazel::RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1});
-	Hazel::RenderCommand::Clear();
-	Hazel::Renderer2D::BeginScene(m_ViewPort.GetCamera());
+	{
+		HZ_PROFILE_SCOPE("Render");
+		Hazel::RenderCommand::SetClearColor({0.0f, 0.0f, 0.0f, 1});
+		Hazel::RenderCommand::Clear();
+		Hazel::Renderer2D::BeginScene(m_ViewPort.GetCamera());
 
-	size_t minRow = std::max((size_t)0, (size_t)std::floor(m_ViewPort.GetBottom()));
-	size_t maxRow = std::min(m_Level.GetHeight(), (size_t)std::ceil(m_ViewPort.GetTop()));
-	size_t minCol = std::max((size_t)0, (size_t)std::floor(m_ViewPort.GetLeft()));
-	size_t maxCol = std::min(m_Level.GetWidth(), (size_t)std::ceil(m_ViewPort.GetRight()));
+		size_t minRow = std::max((size_t)0, (size_t)std::floor(m_ViewPort.GetBottom()));
+		size_t maxRow = std::min(m_Level.GetHeight(), (size_t)std::ceil(m_ViewPort.GetTop()));
+		size_t minCol = std::max((size_t)0, (size_t)std::floor(m_ViewPort.GetLeft()));
+		size_t maxCol = std::min(m_Level.GetWidth(), (size_t)std::ceil(m_ViewPort.GetRight()));
 
-	m_PlayerIsAlive = false;
-	for (size_t row = minRow; row < maxRow; ++row) {
-		for (size_t col = minCol; col < maxCol; ++col) {
-			GameObject& object = m_Level.GetGameObject(row, col);
-			//if (!object.IsEmpty()) {
+		m_PlayerIsAlive = false;
+		for (size_t row = minRow; row < maxRow; ++row) {
+			for (size_t col = minCol; col < maxCol; ++col) {
+				GameObject& object = m_Level.GetGameObject(row, col);
+				//if (!object.IsEmpty()) {
 				glm::vec3 position(col - m_ViewPort.GetLeft() + 0.5f, row - m_ViewPort.GetBottom() + 0.5f, 0.0f);
 				Hazel::Renderer2D::DrawQuad(position, m_TileSize, m_Tiles[(int)object.GetTile()]);
 				if (object.IsPlayer()) {
@@ -311,11 +319,14 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 						m_WonLevel = true;
 					}
 				}
-			//}
+				//}
+			}
 		}
+		Hazel::Renderer2D::EndScene();
 	}
 
-	Hazel::Renderer2D::EndScene();
+	HZ_PROFILE_FRAMEMARKER();
+
 	Hazel::Renderer2D::StatsEndFrame();
 
 	auto stats = Hazel::Renderer2D::GetStats();
