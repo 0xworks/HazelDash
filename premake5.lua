@@ -9,6 +9,7 @@ workspace "HazelDash"
 	configurations
 	{
 		"Debug",
+		"Profile",
 		"Release",
 	}
 
