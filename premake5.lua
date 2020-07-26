@@ -14,7 +14,7 @@ workspace "HazelDash"
 
 	workspace_files 
 	{
-		".editorconfig"
+		"../../.editorconfig"
 	}
 	
 	flags

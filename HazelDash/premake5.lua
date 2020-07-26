@@ -27,6 +27,7 @@ project "HazelDash"
 		"../Hazel/Hazel/vendor/glm",
 		"../Hazel/Hazel/vendor/imgui",
 		"../Hazel/Hazel/vendor/spdlog/include",
+		"../Hazel/Hazel/vendor/entt/include",
 		"../HazelAudio/HazelAudio/src"
 	}
 	

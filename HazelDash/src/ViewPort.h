@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Components/Position.h"
+
 #include "Hazel/Renderer/OrthographicCamera.h"
 #include "Hazel/Core/Timestep.h"
 
@@ -20,6 +22,8 @@ public:
 
 	Hazel::OrthographicCamera& GetCamera() { return m_Camera; }
 	const Hazel::OrthographicCamera& GetCamera() const { return m_Camera; }
+
+	bool Overlaps(const Position& pos);
 
 private:
 	Hazel::OrthographicCamera m_Camera;
