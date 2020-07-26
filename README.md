@@ -13,7 +13,7 @@ There are many BoulderDash clones out there, and most of them are far better tha
 The following branches are active:
 branch|description
 ------|-----------
-|master|  The intention is to keep the master branch up to date with the current master branch of Hazel, and so as new features are added in to the Hazel Game Engine, I will update this game to demonstrate use of those features.  Currently using Hazel code as at episode 79
+|master|  The intention is to keep the master branch up to date with the current master branch of Hazel, and so as new features are added in to the Hazel Game Engine, I will update this game to demonstrate use of those features.  Currently using Hazel code as at episode 79.  In particular, it uses the entity component system.
 |audio|   This is basically the same as the master branch, except with sound effects.  It uses HazelAudio which is an additional plugin for the Hazel engine that is not (yet) covered in the Game Engine Series.
 |Game-Engine-Series-Episode-65|  This branch uses Hazel code as was available at episode 65.  In particular, it makes use of the batch renderer.
 
