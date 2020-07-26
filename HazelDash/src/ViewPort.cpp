@@ -32,6 +32,7 @@ void ViewPort::SetPlayerPosition(float x, float y) {
 	}
 }
 
+
 void ViewPort::Update(Hazel::Timestep ts) {
 	if (std::abs(m_NewLeft - m_Left) > 0.000001) {
 		if (m_NewLeft < m_Left) {
@@ -58,4 +59,15 @@ void ViewPort::Update(Hazel::Timestep ts) {
 			}
 		}
 	}
+	m_Camera.SetProjection(m_Left - 0.5f, (m_Left + m_Width) - 0.5f, m_Bottom - 0.5f, (m_Bottom + m_Height) - 0.5f);
+}
+
+
+bool ViewPort::Overlaps(const Position& pos) {
+	return
+		(pos.Col > m_Left - 1.0f) &&
+		(pos.Col < (m_Left + m_Width) + 1.0f) &&
+		(pos.Row > m_Bottom - 1.0f) &&
+		(pos.Row < (m_Bottom + m_Height) + 1.0f)
+	;
 }

@@ -26,7 +26,8 @@ project "HazelDash"
 		"../Hazel/Hazel/vendor/GLFW/include",
 		"../Hazel/Hazel/vendor/glm",
 		"../Hazel/Hazel/vendor/imgui",
-		"../Hazel/Hazel/vendor/spdlog/include"
+		"../Hazel/Hazel/vendor/spdlog/include",
+		"../Hazel/Hazel/vendor/entt/include"
 	}
 	
 	links {
