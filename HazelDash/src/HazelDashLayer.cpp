@@ -816,7 +816,7 @@ void HazelDashLayer::OnExplode(const Position& pos) {
 		Position{-1,1}
 	};
 
-	static Animation animation1 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3, Tile::Explosion4, Tile::Explosion5, Tile::Explosion6, Tile::Explosion7, Tile::Empty}};
+	static Animation animation1 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3, Tile::Explosion4, Tile::Explosion5, Tile::Explosion6, Tile::Explosion7}};
 	static Animation animation2 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3,  Tile::ExplosionDiamond4, Tile::ExplosionDiamond5, Tile::ExplosionDiamond6, Tile::Diamond7}};
 
 	auto tile = GetEntity(pos).GetComponent<Tile>();
@@ -934,14 +934,15 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 			explosion = Explosion::Burn;
 		} else {
 			if (animation.CurrentFrame == animation.Frames.size() - 1) {
-				if (IsEmpty(animation.Frames.back())) {
-					ClearEntity(pos); // <-- This destroys the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
-				} else {
+				if (IsDiamond(animation.Frames.back())) {
 					// turn into a diamond
 					Hazel::Entity entity(entityHandle, &m_Scene);
 					entity.RemoveComponent<Explosion>();          // <-- This removes a component from the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
 					entity.AddComponent<Mass>(Mass::Stationary);  // <-- This adds a component to the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
 					animation = CharToAnimation('d');
+				} else {
+					//HZ_ASSERT(Hazel::Entity(entityHandle, &m_Scene) == GetEntity(pos), "Something has misplaced an explosion - game logic error!");
+					ClearEntity(pos); // <-- This clears the entity we are currently iterating.  According to EnTT documenation, this is allowed and will  not break anything.
 				}
 			}
 		}
