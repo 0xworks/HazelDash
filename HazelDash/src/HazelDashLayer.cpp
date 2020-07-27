@@ -467,6 +467,7 @@ void HazelDashLayer::LoadScene(int level) {
 	m_Entities.clear();
 	m_Width = definition.Width;
 	m_Height = definition.Height;
+	m_WonLevel = false;
 
 	m_EmptyEntity = m_Scene.CreateEntity();
 	m_EmptyEntity.AddComponent<Tile>(Tile::Empty);
@@ -748,7 +749,7 @@ void HazelDashLayer::OnIncreaseScore() {
 	// TODO: placeholder code.  Should be done with "proper" events at some point
 	++m_Score;
 	if (m_Score == m_ScoreRequired) {
-		Animation animation = {{Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3}};
+		Animation animation = {{Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3}, 0, false};
 		m_ExitEntity.AddComponent<Animation>(animation);
 	}
 }
@@ -956,10 +957,15 @@ void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
 	m_AnimatorAccumulatedTs += ts;
 	if (m_AnimatorAccumulatedTs > m_AnimationTimestep) {
 		m_AnimatorAccumulatedTs = 0.0f;
-		m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each([this] (auto& animation, auto& tile) {
-			++animation.CurrentFrame;
-			if (animation.CurrentFrame >= animation.Frames.size()) {
-				animation.CurrentFrame = 0;
+		m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each([this] (const auto entityHandle, auto& animation, auto& tile) {
+			if (++animation.CurrentFrame >= animation.Frames.size()) {
+				if (animation.Repeat) {
+					animation.CurrentFrame = 0;
+				} else {
+					Hazel::Entity entity(entityHandle, &m_Scene);
+					entity.RemoveComponent<Animation>();
+					return;
+				}
 			}
 			tile = animation.Frames[animation.CurrentFrame];
 		});
