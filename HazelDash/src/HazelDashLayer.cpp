@@ -28,11 +28,12 @@
 #include <imgui.h>
 #endif
 
-// If PERFORMANCE_TEST is non-zero, then starting level is always the
+// If BATCHRENDER_TEST is non-zero, then starting level is always the
 // large one with hazel logo, and will use huge viewport.
 // Otherwise set STARTING_LEVEL to the level index (from levelDefinition)
 // that you want to start on (and will use normal sized viewport)
-#define PERFORMANCE_TEST 0
+// Real levels start from index 5, the ones before that are just small tests
+#define BATCHRENDER_TEST 0
 #define STARTING_LEVEL 0
 
 struct LevelDefinition {
@@ -44,55 +45,47 @@ struct LevelDefinition {
 };
 
 static std::vector<LevelDefinition> s_LevelDefinition = {
-	{ 40, 22, 1, 150,
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-		"WP........r.............r...rr..r......W"
-		"Wr.....r..........r.............r...r.dW"
-		"W....r..........r..wwwwwwwwwwwwwwwwwwwwW"
-		"W..rr........r..w..r.r....r............W"
-		"W..rd.rr.rr.....w......r.........r.r..rW"
-		"W.rr..r......r..w..rr....rr..r..rw.r..rW"
-		"Wwwwwww.........w....r.rr..r.....w.rr..W"
-		"W.........rr.r..w.r..............wrr...W"
-		"W......r.r.r....wrr.......r.....rw.d.r.W"
-		"W.rrr...........wrdr........r....wdd...W"
-		"Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W"
-		"Wr.r...w....r...w..rrr....rr...r.w....rW"
-		"W....r.w........w......r..rr.r...w.....W"
-		"W......w...r..r.w.....r.r......rrw....rW"
-		"W..r.r.wrr...rdrw..r..r...r......w...rrW"
-		"Wr.....w..r.....w.r....r..rr..r.rw..r.rW"
-		"W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW"
-		"W......wwwwwwwwww.r..r...r...r......r..W"
-		"W..rr.....r.rr....d....r.r.r....r....rrW"
-		"W.r....r.....r...dd...rrr.r...r.r.....XW"
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.......XW"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"WP......dW"
+		"WWWWWWWWWW"
 	},
-	{ 40, 22, 9, 150,
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-		"WP..........r.....w.......r............W"
-		"W.................w....................W"
-		"W.................w.w.......w.w........W"
-		"W.......w.w.......w.wwwwwwwwwwwwwwwwww.W"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w..       w.r       dW"
-		"WFd     r.r       wwwwwwwwwww.w.wwwwwwwW"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w.r       w.wd       W"
-		"W d     r.r       w.wwwwwwwww.wwwwwwww.W"
-		"Wwwwwwwww.wwwwwwwww.w       w.w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       ..r       w.w       dW"
-		"W d     r.r       w.wwwwwwwww.w.wwwwwwwW"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w.r       w.wd      .W"
-		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.r...r.XW"
+		"W........W"
+		"W...    .W"
+		"W...    .W"
+		"W...    .W"
+		"W... B  .W"
+		"W........W"
+		"WP.......W"
+		"WWWWWWWWWW"
 	},
-	{ 40, 22, 9, 150,
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.r...r.XW"
+		"W........W"
+		"W...    .W"
+		"W...    .W"
+		"W...    .W"
+		"W... F  .W"
+		"W........W"
+		"WP......dW"
+		"WWWWWWWWWW"
+	},
+	{
+		40, 22, 9, 150,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.....................................W"
 		"W......................................W"
@@ -116,7 +109,8 @@ static std::vector<LevelDefinition> s_LevelDefinition = {
 		"W.....................................XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
-	{ 160, 88, 20, 120,
+	{
+		160, 88, 20, 120,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.............................................................................................................................................................W"
 		"W..............................................................................................................................................................W"
@@ -206,29 +200,80 @@ static std::vector<LevelDefinition> s_LevelDefinition = {
 		"W.............................................................................................................................................................XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
-	{ 40, 22, 10, 0,
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWW  WWWWWW  W        WW  WWWW  WWWWW"
-	"WWWWWWW  WWWW PWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWW  WW  WWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW        WWW      WWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWW  WWWWWW  WW      WWW  WWW  WWWWWWWW"
-	"WWWW  WWWWWW  WWWW  WWWWW   WW  WWWWWWWW"
-	"WWWWW  WWWW  WWWWW  WWWWW    W  WWWWWWWW"
-	"WWWWW  W  W  WWWWW  WWWWW  W    WWWWWWWW"
-	"WWWWWW      WWWWWW  WWWWW  WW   WWWWWWWW"
-	"WWWWWW  WW  WWWW      WWW  WWW  WWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		40, 22, 1, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP........r.............r...rr..r......W"
+		"Wr.....r..........r.............r...r.dW"
+		"W....r..........r..wwwwwwwwwwwwwwwwwwwwW"
+		"W..rr........r..w..r.r....r............W"
+		"W..rd.rr.rr.....w......r.........r.r..rW"
+		"W.rr..r......r..w..rr....rr..r..rw.r..rW"
+		"Wwwwwww.........w....r.rr..r.....w.rr..W"
+		"W.........rr.r..w.r..............wrr...W"
+		"W......r.r.r....wrr.......r.....rw.d.r.W"
+		"W.rrr...........wrdr........r....wdd...W"
+		"Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W"
+		"Wr.r...w....r...w..rrr....rr...r.w....rW"
+		"W....r.w........w......r..rr.r...w.....W"
+		"W......w...r..r.w.....r.r......rrw....rW"
+		"W..r.r.wrr...rdrw..r..r...r......w...rrW"
+		"Wr.....w..r.....w.r....r..rr..r.rw..r.rW"
+		"W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW"
+		"W......wwwwwwwwww.r..r...r...r......r..W"
+		"W..rr.....r.rr....d....r.r.r....r....rrW"
+		"W.r....r.....r...dd...rrr.r...r.r.....XW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
+	{
+		40, 22, 9, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP..........r.....w.......r............W"
+		"W.................w....................W"
+		"W.................w.w.......w.w........W"
+		"W.......w.w.......w.wwwwwwwwwwwwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w..       w.r       dW"
+		"WFd     r.r       wwwwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd       W"
+		"W d     r.r       w.wwwwwwwww.wwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       w.w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       ..r       w.w       dW"
+		"W d     r.r       w.wwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd      .W"
+		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
+	{
+		40, 22, 10, 0,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWW  WWWWWW  W        WW  WWWW  WWWWW"
+		"WWWWWWW  WWWW PWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWW  WW  WWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW        WWW      WWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWW  WWWWWW  WW      WWW  WWW  WWWWWWWW"
+		"WWWW  WWWWWW  WWWW  WWWWW   WW  WWWWWWWW"
+		"WWWWW  WWWW  WWWWW  WWWWW    W  WWWWWWWW"
+		"WWWWW  W  W  WWWWW  WWWWW  W    WWWWWWWW"
+		"WWWWWW      WWWWWW  WWWWW  WW   WWWWWWWW"
+		"WWWWWW  WW  WWWW      WWW  WWW  WWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	}
 };
 
@@ -363,8 +408,8 @@ HazelDashLayer::HazelDashLayer()
 , m_PlayerIsAlive(false)
 , m_WonLevel(false)
 {
-#if PERFORMANCE_TEST
-	m_CurrentLevel = (int)s_LevelDefinition.size() - 2;
+#if BATCHRENDER_TEST
+	m_CurrentLevel = 4;
 	m_ViewPort = {0.0f, 0.0f, 160.0f, 88.0f};
 #endif
 	m_ViewPort.SetCameraSpeed((1.0f / m_FixedTimestep) - 1.0f);
