@@ -7,6 +7,7 @@
 #include "Components/Explosion.h"
 #include "Components/Mass.h"
 #include "Components/PlayerState.h"
+#include "Components/Roll.h"
 
 #include "Random.h"
 
@@ -316,6 +317,20 @@ Animation CharToAnimation(const char ch) {
 }
 
 
+Roll CharToRoll(const char ch) {
+	static std::unordered_map<char, Roll> rollMap = {
+		{'r', {{Tile::Boulder0, Tile::Boulder1, Tile::Boulder2, Tile::Boulder3}}},
+		{'o', {{Tile::Barrel0, Tile::Barrel1, Tile::Barrel2, Tile::Barrel3}}}
+	};
+	std::unordered_map<char, Roll>::const_iterator roll = rollMap.find(ch);
+	if (roll == rollMap.end()) {
+		return Roll {};
+	} else {
+		return roll->second;
+	}
+}
+
+
 const Animation& GetPlayerAnimation(PlayerState state, bool lastWasLeft) {
 	static std::array<Animation, 6> animations = {
 		Animation {{ Tile::PlayerIdle0,  Tile::PlayerIdle0,  Tile::PlayerIdle0,  Tile::PlayerIdle0}},
@@ -532,7 +547,7 @@ void HazelDashLayer::LoadScene(int level) {
 					entity = m_Scene.CreateEntity();
 					if (IsAmoeba(tile)) {
 						entity.AddComponent<Amoeba>();
-					} else if (IsBoulder(tile) || IsDiamond(tile)) {
+					} else if (IsBoulder(tile) || IsBarrel(tile) || IsDiamond(tile)) {
 						entity.AddComponent<Mass>(Mass::Stationary);
 					} else if (IsButterfly(tile)) {
 						entity.AddComponent<EnemyMovement>(3, false);
@@ -549,6 +564,10 @@ void HazelDashLayer::LoadScene(int level) {
 					Animation animation = CharToAnimation(ch);
 					if (!animation.Frames.empty()) {
 						entity.AddComponent<Animation>(animation);
+					}
+					Roll roll = CharToRoll(ch);
+					if (!roll.Frames.empty()) {
+						entity.AddComponent<Roll>(roll);
 					}
 				}
 				m_Entities[index] = entity;
@@ -585,7 +604,8 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 	static const Position Right = {0, 1};
 	static const Position BelowRight = {-1, 1};
 
-	m_Scene.m_Registry.group<Mass>(entt::get<Position, Tile>).each([this] (auto& mass, auto& pos, auto& tile) {
+	m_Scene.m_Registry.group<Mass>(entt::get<Position>).each([this] (const auto entityHandle, auto& mass, auto& pos) {
+		Hazel::Entity entity(entityHandle, &m_Scene);
 		Hazel::Entity entityBelow = GetEntity(pos + Below);
 		auto tileBelow = entityBelow.GetComponent<Tile>();
 		if (IsEmpty(tileBelow)) {
@@ -606,6 +626,12 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 						mass = Mass::Falling;
 						SwapEntities(pos, pos + Left);
 						pos += Left;
+						if (entity.HasComponent<Roll>()) {
+							auto& roll = entity.GetComponent<Roll>();
+							auto& tile = entity.GetComponent<Tile>();
+							roll.CurrentFrame = (roll.CurrentFrame - 1) % roll.Frames.size();
+							tile = roll.Frames[roll.CurrentFrame];
+						}
 					} else {
 						Hazel::Entity entityRight = GetEntity(pos + Right);
 						Hazel::Entity entityBelowRight = GetEntity(pos + BelowRight);
@@ -616,6 +642,12 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 							mass = Mass::Falling;
 							SwapEntities(pos, pos + Right);
 							pos += Right;
+							if (entity.HasComponent<Roll>()) {
+								auto& roll = entity.GetComponent<Roll>();
+								auto& tile = entity.GetComponent<Tile>();
+								roll.CurrentFrame = (roll.CurrentFrame + 1) % roll.Frames.size();
+								tile = roll.Frames[roll.CurrentFrame];
+							}
 						} else {
 							mass = Mass::Stationary;
 						}
@@ -743,7 +775,7 @@ void HazelDashLayer::PlayerControllerUpdate(Hazel::Timestep ts) {
 bool HazelDashLayer::TryMovePlayer(Position& pos, Position direction, const bool ctrlPressed) {
 	bool retVal = false;
 	Hazel::Entity entity = GetEntity(pos + direction);
-	const auto tile = entity.GetComponent<Tile>();
+	auto& tile = entity.GetComponent<Tile>();
 	if (CanBeOccupied(tile)) {
 		retVal = true;
 		if (!ctrlPressed) {
@@ -762,6 +794,11 @@ bool HazelDashLayer::TryMovePlayer(Position& pos, Position direction, const bool
 				SwapEntities(posAcross, pos + direction);
 				auto& posPushed = entity.GetComponent<Position>();
 				posPushed += direction;
+				if (entity.HasComponent<Roll>()) {
+					auto& roll = entity.GetComponent<Roll>();
+					roll.CurrentFrame = (roll.CurrentFrame + direction.Col) % roll.Frames.size();
+					tile = roll.Frames[roll.CurrentFrame];
+				}
 				if (!ctrlPressed) {
 					pos += direction;
 				}
