@@ -3,8 +3,7 @@
 
 #include <vector>
 
-struct Animation {
+struct Roll {
 	std::vector<Tile> Frames;
 	uint32_t CurrentFrame = 0;
-	bool Repeat = true;
 };

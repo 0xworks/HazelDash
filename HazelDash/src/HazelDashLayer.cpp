@@ -8,6 +8,7 @@
 #include "Components/Explosion.h"
 #include "Components/Mass.h"
 #include "Components/PlayerState.h"
+#include "Components/Roll.h"
 
 #include "Random.h"
 
@@ -31,11 +32,12 @@
 #include <imgui.h>
 #endif
 
-// If PERFORMANCE_TEST is non-zero, then starting level is always the
+// If BATCHRENDER_TEST is non-zero, then starting level is always the
 // large one with hazel logo, and will use huge viewport.
 // Otherwise set STARTING_LEVEL to the level index (from levelDefinition)
 // that you want to start on (and will use normal sized viewport)
-#define PERFORMANCE_TEST 0
+// Real levels start from index 5, the ones before that are just small tests
+#define BATCHRENDER_TEST 0
 #define STARTING_LEVEL 0
 
 struct LevelDefinition {
@@ -47,55 +49,47 @@ struct LevelDefinition {
 };
 
 static std::vector<LevelDefinition> s_LevelDefinition = {
-	{ 40, 22, 1, 150,
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-		"WP........r.............r...rr..r......W"
-		"Wr.....r..........r.............r...r.dW"
-		"W....r..........r..wwwwwwwwwwwwwwwwwwwwW"
-		"W..rr........r..w..r.r....r............W"
-		"W..rd.rr.rr.....w......r.........r.r..rW"
-		"W.rr..r......r..w..rr....rr..r..rw.r..rW"
-		"Wwwwwww.........w....r.rr..r.....w.rr..W"
-		"W.........rr.r..w.r..............wrr...W"
-		"W......r.r.r....wrr.......r.....rw.d.r.W"
-		"W.rrr...........wrdr........r....wdd...W"
-		"Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W"
-		"Wr.r...w....r...w..rrr....rr...r.w....rW"
-		"W....r.w........w......r..rr.r...w.....W"
-		"W......w...r..r.w.....r.r......rrw....rW"
-		"W..r.r.wrr...rdrw..r..r...r......w...rrW"
-		"Wr.....w..r.....w.r....r..rr..r.rw..r.rW"
-		"W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW"
-		"W......wwwwwwwwww.r..r...r...r......r..W"
-		"W..rr.....r.rr....d....r.r.r....r....rrW"
-		"W.r....r.....r...dd...rrr.r...r.r.....XW"
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.......XW"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"W........W"
+		"WP......dW"
+		"WWWWWWWWWW"
 	},
-	{ 40, 22, 9, 150,
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-		"WP..........r.....w.......r............W"
-		"W.................w....................W"
-		"W.................w.w.......w.w........W"
-		"W.......w.w.......w.wwwwwwwwwwwwwwwwww.W"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w..       w.r       dW"
-		"WFd     r.r       wwwwwwwwwww.w.wwwwwwwW"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w.r       w.wd       W"
-		"W d     r.r       w.wwwwwwwww.wwwwwwww.W"
-		"Wwwwwwwww.wwwwwwwww.w       w.w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       ..r       w.w       dW"
-		"W d     r.r       w.wwwwwwwww.w.wwwwwwwW"
-		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
-		"W       w.w       w.w       w.w        W"
-		"W       w.w       w.r       w.wd      .W"
-		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
-		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.r...r.XW"
+		"W........W"
+		"W...    .W"
+		"W...    .W"
+		"W...    .W"
+		"W... B  .W"
+		"W........W"
+		"WP.......W"
+		"WWWWWWWWWW"
 	},
-	{ 40, 22, 9, 150,
+	{
+		10, 10, 1, 0,
+		"WWWWWWWWWW"
+		"W.r...r.XW"
+		"W........W"
+		"W...    .W"
+		"W...    .W"
+		"W...    .W"
+		"W... F  .W"
+		"W........W"
+		"WP......dW"
+		"WWWWWWWWWW"
+	},
+	{
+		40, 22, 9, 150,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.....................................W"
 		"W......................................W"
@@ -119,7 +113,8 @@ static std::vector<LevelDefinition> s_LevelDefinition = {
 		"W.....................................XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
-	{ 160, 88, 20, 120,
+	{
+		160, 88, 20, 120,
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 		"WP.............................................................................................................................................................W"
 		"W..............................................................................................................................................................W"
@@ -209,29 +204,80 @@ static std::vector<LevelDefinition> s_LevelDefinition = {
 		"W.............................................................................................................................................................XW"
 		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	},
-	{ 40, 22, 10, 0,
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWW  WWWWWW  W        WW  WWWW  WWWWW"
-	"WWWWWWW  WWWW PWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWW  WW  WWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
-	"WWWWWWWWWW  WWWWW        WWW      WWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWW  WWWWWW  WW      WWW  WWW  WWWWWWWW"
-	"WWWW  WWWWWW  WWWW  WWWWW   WW  WWWWWWWW"
-	"WWWWW  WWWW  WWWWW  WWWWW    W  WWWWWWWW"
-	"WWWWW  W  W  WWWWW  WWWWW  W    WWWWWWWW"
-	"WWWWWW      WWWWWW  WWWWW  WW   WWWWWWWW"
-	"WWWWWW  WW  WWWW      WWW  WWW  WWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
-	"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	{
+		40, 22, 1, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP........r.............r...rr..r......W"
+		"Wr.....r..........r.............r...r.dW"
+		"W....r..........r..wwwwwwwwwwwwwwwwwwwwW"
+		"W..rr........r..w..r.r....r............W"
+		"W..rd.rr.rr.....w......r.........r.r..rW"
+		"W.rr..r......r..w..rr....rr..r..rw.r..rW"
+		"Wwwwwww.........w....r.rr..r.....w.rr..W"
+		"W.........rr.r..w.r..............wrr...W"
+		"W......r.r.r....wrr.......r.....rw.d.r.W"
+		"W.rrr...........wrdr........r....wdd...W"
+		"Wr..r.r......r.rw.....rr.rr.r.r..wdd.r.W"
+		"Wr.r...w....r...w..rrr....rr...r.w....rW"
+		"W....r.w........w......r..rr.r...w.....W"
+		"W......w...r..r.w.....r.r......rrw....rW"
+		"W..r.r.wrr...rdrw..r..r...r......w...rrW"
+		"Wr.....w..r.....w.r....r..rr..r.rw..r.rW"
+		"W.rr...w....r..rw...r.wwwwwwwwwwwwwwwwwW"
+		"W......wwwwwwwwww.r..r...r...r......r..W"
+		"W..rr.....r.rr....d....r.r.r....r....rrW"
+		"W.r....r.....r...dd...rrr.r...r.r.....XW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
+	{
+		40, 22, 9, 150,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WP..........r.....w.......r............W"
+		"W.................w....................W"
+		"W.................w.w.......w.w........W"
+		"W.......w.w.......w.wwwwwwwwwwwwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w..       w.r       dW"
+		"WFd     r.r       wwwwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd       W"
+		"W d     r.r       w.wwwwwwwww.wwwwwwww.W"
+		"Wwwwwwwww.wwwwwwwww.w       w.w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       ..r       w.w       dW"
+		"W d     r.r       w.wwwwwwwww.w.wwwwwwwW"
+		"Wwwwwwwww.wwwwwwwww.w       ..w        W"
+		"W       w.w       w.w       w.w        W"
+		"W       w.w       w.r       w.wd      .W"
+		"W d     r.r      dwwwwwwwwwwwwwwwwwwwwXW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+	},
+	{
+		40, 22, 10, 0,
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWW  WWWWWW  W        WW  WWWW  WWWWW"
+		"WWWWWWW  WWWW PWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWW  WW  WWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW  WWWW  WW  WWWW  WWWWW"
+		"WWWWWWWWWW  WWWWW        WWW      WWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWW  WWWWWW  WW      WWW  WWW  WWWWWWWW"
+		"WWWW  WWWWWW  WWWW  WWWWW   WW  WWWWWWWW"
+		"WWWWW  WWWW  WWWWW  WWWWW    W  WWWWWWWW"
+		"WWWWW  W  W  WWWWW  WWWWW  W    WWWWWWWW"
+		"WWWWWW      WWWWWW  WWWWW  WW   WWWWWWWW"
+		"WWWWWW  WW  WWWW      WWW  WWW  WWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
+		"WWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWWW"
 	}
 };
 
@@ -276,6 +322,20 @@ Animation CharToAnimation(const char ch) {
 
 SoundEffect GetSoundEffect(Tile tile) {
 	return IsBoulder(tile)? SoundEffect::Boulder : SoundEffect::Diamond;
+}
+
+
+Roll CharToRoll(const char ch) {
+	static std::unordered_map<char, Roll> rollMap = {
+		{'r', {{Tile::Boulder0, Tile::Boulder1, Tile::Boulder2, Tile::Boulder3}}},
+		{'o', {{Tile::Barrel0, Tile::Barrel1, Tile::Barrel2, Tile::Barrel3}}}
+	};
+	std::unordered_map<char, Roll>::const_iterator roll = rollMap.find(ch);
+	if (roll == rollMap.end()) {
+		return Roll {};
+	} else {
+		return roll->second;
+	}
 }
 
 
@@ -371,8 +431,8 @@ HazelDashLayer::HazelDashLayer()
 , m_PlayerIsAlive(false)
 , m_WonLevel(false)
 {
-#if PERFORMANCE_TEST
-	m_CurrentLevel = (int)s_LevelDefinition.size() - 2;
+#if BATCHRENDER_TEST
+	m_CurrentLevel = 4;
 	m_ViewPort = {0.0f, 0.0f, 160.0f, 88.0f};
 #endif
 	m_ViewPort.SetCameraSpeed((1.0f / m_FixedTimestep) - 1.0f);
@@ -477,6 +537,7 @@ void HazelDashLayer::LoadScene(int level) {
 	m_Entities.clear();
 	m_Width = definition.Width;
 	m_Height = definition.Height;
+	m_WonLevel = false;
 
 	m_EmptyEntity = m_Scene.CreateEntity();
 	m_EmptyEntity.AddComponent<Tile>(Tile::Empty);
@@ -496,7 +557,7 @@ void HazelDashLayer::LoadScene(int level) {
 					entity = m_Scene.CreateEntity();
 					if (IsAmoeba(tile)) {
 						entity.AddComponent<Amoeba>();
-					} else if (IsBoulder(tile) || IsDiamond(tile)) {
+					} else if (IsBoulder(tile) || IsBarrel(tile) || IsDiamond(tile)) {
 						entity.AddComponent<Mass>(Mass::Stationary);
 					} else if (IsButterfly(tile)) {
 						entity.AddComponent<EnemyMovement>(3, false);
@@ -513,6 +574,10 @@ void HazelDashLayer::LoadScene(int level) {
 					Animation animation = CharToAnimation(ch);
 					if (!animation.Frames.empty()) {
 						entity.AddComponent<Animation>(animation);
+					}
+					Roll roll = CharToRoll(ch);
+					if (!roll.Frames.empty()) {
+						entity.AddComponent<Roll>(roll);
 					}
 				}
 				m_Entities[index] = entity;
@@ -549,7 +614,8 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 	static const Position Right = {0, 1};
 	static const Position BelowRight = {-1, 1};
 
-	m_Scene.m_Registry.group<Mass>(entt::get<Position, Tile>).each([this] (auto& mass, auto& pos, auto& tile) {
+	m_Scene.m_Registry.group<Mass>(entt::get<Position>).each([this] (const auto entityHandle, auto& mass, auto& pos) {
+		Hazel::Entity entity(entityHandle, &m_Scene);
 		Hazel::Entity entityBelow = GetEntity(pos + Below);
 		auto tileBelow = entityBelow.GetComponent<Tile>();
 		if (IsEmpty(tileBelow)) {
@@ -573,6 +639,12 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 						mass = Mass::Falling;
 						SwapEntities(pos, pos + Left);
 						pos += Left;
+						if (entity.HasComponent<Roll>()) {
+							auto& roll = entity.GetComponent<Roll>();
+							auto& tile = entity.GetComponent<Tile>();
+							roll.CurrentFrame = (roll.CurrentFrame - 1) % roll.Frames.size();
+							tile = roll.Frames[roll.CurrentFrame];
+						}
 					} else {
 						Hazel::Entity entityRight = GetEntity(pos + Right);
 						Hazel::Entity entityBelowRight = GetEntity(pos + BelowRight);
@@ -583,6 +655,12 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 							mass = Mass::Falling;
 							SwapEntities(pos, pos + Right);
 							pos += Right;
+							if (entity.HasComponent<Roll>()) {
+								auto& roll = entity.GetComponent<Roll>();
+								auto& tile = entity.GetComponent<Tile>();
+								roll.CurrentFrame = (roll.CurrentFrame + 1) % roll.Frames.size();
+								tile = roll.Frames[roll.CurrentFrame];
+							}
 						} else {
 							mass = Mass::Stationary;
 						}
@@ -710,7 +788,7 @@ void HazelDashLayer::PlayerControllerUpdate(Hazel::Timestep ts) {
 bool HazelDashLayer::TryMovePlayer(Position& pos, Position direction, const bool ctrlPressed) {
 	bool retVal = false;
 	Hazel::Entity entity = GetEntity(pos + direction);
-	const auto tile = entity.GetComponent<Tile>();
+	auto& tile = entity.GetComponent<Tile>();
 	if (CanBeOccupied(tile)) {
 		retVal = true;
 		if (!ctrlPressed) {
@@ -735,6 +813,11 @@ bool HazelDashLayer::TryMovePlayer(Position& pos, Position direction, const bool
 				auto& posPushed = entity.GetComponent<Position>();
 				posPushed += direction;
 				HazelDashAudio::PlaySound(SoundEffect::Boulder);
+				if (entity.HasComponent<Roll>()) {
+					auto& roll = entity.GetComponent<Roll>();
+					roll.CurrentFrame = (roll.CurrentFrame + direction.Col) % roll.Frames.size();
+					tile = roll.Frames[roll.CurrentFrame];
+				}
 				if (!ctrlPressed) {
 					pos += direction;
 				}
@@ -769,7 +852,7 @@ void HazelDashLayer::OnIncreaseScore() {
 	HazelDashAudio::PlaySound(SoundEffect::Collect);
 	++m_Score;
 	if (m_Score == m_ScoreRequired) {
-		Animation animation = {{Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3}};
+		Animation animation = {{Tile::Door0, Tile::Door1, Tile::Door2, Tile::Door3}, 0, false};
 		m_ExitEntity.AddComponent<Animation>(animation);
 	}
 }
@@ -837,7 +920,7 @@ void HazelDashLayer::OnExplode(const Position& pos) {
 		Position{-1,1}
 	};
 
-	static Animation animation1 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3, Tile::Explosion4, Tile::Explosion5, Tile::Explosion6, Tile::Explosion7, Tile::Empty}};
+	static Animation animation1 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3, Tile::Explosion4, Tile::Explosion5, Tile::Explosion6, Tile::Explosion7}};
 	static Animation animation2 = {{Tile::Explosion0, Tile::Explosion1, Tile::Explosion2, Tile::Explosion3,  Tile::ExplosionDiamond4, Tile::ExplosionDiamond5, Tile::ExplosionDiamond6, Tile::Diamond7}};
 
 	auto tile = GetEntity(pos).GetComponent<Tile>();
@@ -961,14 +1044,15 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 			explosion = Explosion::Burn;
 		} else {
 			if (animation.CurrentFrame == animation.Frames.size() - 1) {
-				if (IsEmpty(animation.Frames.back())) {
-					ClearEntity(pos); // <-- This destroys the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
-				} else {
+				if (IsDiamond(animation.Frames.back())) {
 					// turn into a diamond
 					Hazel::Entity entity(entityHandle, &m_Scene);
 					entity.RemoveComponent<Explosion>();          // <-- This removes a component from the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
 					entity.AddComponent<Mass>(Mass::Stationary);  // <-- This adds a component to the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
 					animation = CharToAnimation('d');
+				} else {
+					//HZ_ASSERT(Hazel::Entity(entityHandle, &m_Scene) == GetEntity(pos), "Something has misplaced an explosion - game logic error!");
+					ClearEntity(pos); // <-- This clears the entity we are currently iterating.  According to EnTT documenation, this is allowed and will  not break anything.
 				}
 			}
 		}
@@ -982,10 +1066,15 @@ void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
 	m_AnimatorAccumulatedTs += ts;
 	if (m_AnimatorAccumulatedTs > m_AnimationTimestep) {
 		m_AnimatorAccumulatedTs = 0.0f;
-		m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each([this] (auto& animation, auto& tile) {
-			++animation.CurrentFrame;
-			if (animation.CurrentFrame >= animation.Frames.size()) {
-				animation.CurrentFrame = 0;
+		m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each([this] (const auto entityHandle, auto& animation, auto& tile) {
+			if (++animation.CurrentFrame >= animation.Frames.size()) {
+				if (animation.Repeat) {
+					animation.CurrentFrame = 0;
+				} else {
+					Hazel::Entity entity(entityHandle, &m_Scene);
+					entity.RemoveComponent<Animation>();
+					return;
+				}
 			}
 			tile = animation.Frames[animation.CurrentFrame];
 		});
