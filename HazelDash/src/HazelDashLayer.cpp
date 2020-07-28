@@ -616,7 +616,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 	static const Position Right = {0, 1};
 	static const Position BelowRight = {-1, 1};
 
-	m_Scene.m_Registry.group<Mass>(entt::get<Position>).each([this] (const auto entityHandle, auto& mass, auto& pos) {
+	m_Scene.m_Registry.group<Mass>(entt::get<Position, Tile>).each([this] (const auto entityHandle, auto& mass, auto& pos, auto& tile) {
 		Hazel::Entity entity(entityHandle, &m_Scene);
 		Hazel::Entity entityBelow = GetEntity(pos + Below);
 		auto tileBelow = entityBelow.GetComponent<Tile>();
@@ -631,7 +631,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 			} else if (mass.HeightFallen > mass.FallLimit) {
 				OnExplode(pos);
 			} else {
-				if (mass == Mass::Falling) {
+				if (mass.State == MassState::Falling) {
 					HazelDashAudio::PlaySound(GetSoundEffect(tile));
 				}
 				if (IsRounded(tileBelow)) {
