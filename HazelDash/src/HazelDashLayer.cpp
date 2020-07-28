@@ -557,8 +557,10 @@ void HazelDashLayer::LoadScene(int level) {
 					entity = m_Scene.CreateEntity();
 					if (IsAmoeba(tile)) {
 						entity.AddComponent<Amoeba>();
-					} else if (IsBoulder(tile) || IsBarrel(tile) || IsDiamond(tile)) {
-						entity.AddComponent<Mass>(Mass::Stationary);
+					} else if (IsBoulder(tile) || IsDiamond(tile)) {
+						entity.AddComponent<Mass>();
+					} else if (IsBarrel(tile)) {
+						entity.AddComponent<Mass>(MassState::Stationary, 0, 5);
 					} else if (IsButterfly(tile)) {
 						entity.AddComponent<EnemyMovement>(3, false);
 					} else if (IsFirefly(tile)) {
@@ -619,12 +621,15 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 		Hazel::Entity entityBelow = GetEntity(pos + Below);
 		auto tileBelow = entityBelow.GetComponent<Tile>();
 		if (IsEmpty(tileBelow)) {
-			mass = Mass::Falling;
+			mass.State = MassState::Falling;
+			++mass.HeightFallen;
 			SwapEntities(pos, pos + Below);
 			pos += Below;
 		} else {
-			if ((mass == Mass::Falling) && IsExplosive(tileBelow)) {
+			if ((mass.State == MassState::Falling) && IsExplosive(tileBelow)) {
 				OnExplode(pos + Below);
+			} else if (mass.HeightFallen > mass.FallLimit) {
+				OnExplode(pos);
 			} else {
 				if (mass == Mass::Falling) {
 					HazelDashAudio::PlaySound(GetSoundEffect(tile));
@@ -636,7 +641,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 					auto tileBelowLeft = entityBelowLeft.GetComponent<Tile>();
 					if (IsEmpty(tileLeft) && IsEmpty(tileBelowLeft)) {
 						// bounce left
-						mass = Mass::Falling;
+						mass.State = MassState::Falling;
 						SwapEntities(pos, pos + Left);
 						pos += Left;
 						if (entity.HasComponent<Roll>()) {
@@ -652,7 +657,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 						auto tileBelowRight = entityBelowRight.GetComponent<Tile>();
 						if (IsEmpty(tileRight) && IsEmpty(tileBelowRight)) {
 							// bounce right
-							mass = Mass::Falling;
+							mass.State = MassState::Falling;
 							SwapEntities(pos, pos + Right);
 							pos += Right;
 							if (entity.HasComponent<Roll>()) {
@@ -662,11 +667,13 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 								tile = roll.Frames[roll.CurrentFrame];
 							}
 						} else {
-							mass = Mass::Stationary;
+							mass.State = MassState::Stationary;
+							mass.HeightFallen = 0;
 						}
 					}
 				} else {
-					mass = Mass::Stationary;
+					mass.State = MassState::Stationary;
+					mass.HeightFallen = 0;
 				}
 			}
 		}
@@ -1017,16 +1024,15 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 
 
 void HazelDashLayer::OnSolidify(const Tile solidifyTo) {
-	// for some reason group<Amoeba>(get<Tile>) does not work here...?
 	m_Scene.m_Registry.view<Amoeba, Tile>().each([&] (const auto entityHandle, auto& amoeba, auto& tile) {
 		Hazel::Entity entity(entityHandle, &m_Scene);
-		entity.RemoveComponent<Amoeba>();  // <-- This removes a component from the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
+		entity.RemoveComponent<Amoeba>();
 		tile = solidifyTo;
 		if (IsDiamond(tile)) {
 			auto& animation = entity.GetComponent<Animation>(); // we know it has an Animation component because it was an Amoeba, and Amoeba entities have an Animation
 			animation = CharToAnimation('d');
 		} else {
-			entity.RemoveComponent<Animation>();  // <-- This removes a component from the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
+			entity.RemoveComponent<Animation>();
 		}
 	});
 }
@@ -1047,12 +1053,12 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 				if (IsDiamond(animation.Frames.back())) {
 					// turn into a diamond
 					Hazel::Entity entity(entityHandle, &m_Scene);
-					entity.RemoveComponent<Explosion>();          // <-- This removes a component from the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
-					entity.AddComponent<Mass>(Mass::Stationary);  // <-- This adds a component to the entity we are currently iterating.  According to EnTT documentation, this is allowed and will not break anything.
+					entity.RemoveComponent<Explosion>();
+					entity.AddComponent<Mass>();
 					animation = CharToAnimation('d');
 				} else {
 					//HZ_ASSERT(Hazel::Entity(entityHandle, &m_Scene) == GetEntity(pos), "Something has misplaced an explosion - game logic error!");
-					ClearEntity(pos); // <-- This clears the entity we are currently iterating.  According to EnTT documenation, this is allowed and will  not break anything.
+					ClearEntity(pos);
 				}
 			}
 		}
