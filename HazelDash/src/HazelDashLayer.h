@@ -1,13 +1,11 @@
 #pragma once
 
-#include "Components/Position.h"
 #include "Components/Tile.h"
-#include "ViewPort.h"
 
-#include "Hazel/Scene/Entity.h"
 #include "Hazel/Core/Layer.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Renderer/Texture.h"
+#include "Hazel/Scene/Entity.h"
 
 #include <glm/glm.hpp>
 
@@ -37,34 +35,30 @@ private:
 	void PhysicsFixedUpdate();
 	void PlayerControllerFixedUpdate();
 	void EnemiesFixedUpdate();
-	void OnExplode(const Position& pos);
+	void OnExplode(const int row, const int col);
 	void AmoebaFixedUpdate();
 	void OnSolidify(const Tile solidfyTo);
 	void PlayerControllerUpdate(Hazel::Timestep ts);
-	bool TryMovePlayer(Position& pos, Position direction, const bool ctrlPressed);
-	void OnPlayerMoved(const Position& pos);
+	bool TryMovePlayer(glm::mat4& transform, const std::pair<int, int> direction, const bool ctrlPressed);
 	void OnPlayerDied();
 	void OnLevelCompleted();
 	void OnIncreaseScore();
 	void ExploderUpdate(Hazel::Timestep ts);
 	void AnimatorUpdate(Hazel::Timestep ts);
-	void CameraControllerUpdate(Hazel::Timestep ts);
-	void RendererUpdate(Hazel::Timestep ts);
 
-	Hazel::Entity GetEntity(const Position pos);
-	void SetEntity(Position pos, Hazel::Entity entity);
-	void ClearEntity(const Position pos);
-	void SwapEntities(const Position posA, const Position posB);
+	Hazel::Entity GetEntity(const int row, const int col);
+	void SetEntity(const int row, const int col, Hazel::Entity entity);
+	void ClearEntity(const int row, const int col);
+	void SwapEntities(const int rowA, const int colA, const int rowB, const int colB);
 
 private:
-	std::array<Hazel::Ref<Hazel::Texture2D>, (size_t)Tile::NumTiles> m_Tiles;
+	std::array<Hazel::Ref<Hazel::Texture2D>, (size_t)Tile::NumTiles> m_Tiles; // DELETE ME
 
 	Hazel::Scene m_Scene;
-	// TODO: Maybe viewport (and associated camera) should be components of a "camera entity" that belongs to the scene...?
-	ViewPort m_ViewPort;
-	std::vector<Hazel::Entity> m_Entities;
-	Hazel::Entity m_EmptyEntity;
-	Hazel::Entity m_ExitEntity;
+
+	std::vector<Hazel::Entity> m_Entities;  // }- TODO: need to be able to get rid of these.
+	Hazel::Entity m_EmptyEntity;            // }  They are only here because we need them for game logic.
+	Hazel::Entity m_ExitEntity;             // }  However, game logic should be part of "scripts" in the scene.
 
 	Hazel::Timestep m_FixedTimestep;
 	Hazel::Timestep m_AnimationTimestep;
