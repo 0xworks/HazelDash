@@ -14,6 +14,12 @@ public:
 
 	void OnUpdate(Hazel::Timestep ts) {
 
+		// if tracked entity is no longer valid (e.g. player might have been killed)
+		// then nothing to do here...
+		if (!m_TrackEntity) {
+			return;
+		}
+
 		/////////////////////////////////////////
 		//
 		// TODO: This block of code only needs to be done if the viewport is resized,
@@ -21,13 +27,6 @@ public:
 		//       However, the event system isn't quite there yet, so for now
 		//       just do this on every update
 		//
-
-		// if tracked entity is no longer valid (e.g. player might have been killed)
-		// then nothing to do here...
-		if (!m_TrackEntity) {
-			return;
-		}
-
 		auto& cameraTransform = GetComponent<Hazel::TransformComponent>().Transform;
 		auto& cameraProjection = GetComponent<Hazel::CameraComponent>().Camera.GetProjection();
 
@@ -60,12 +59,19 @@ public:
 		//
 		//////////////////////////////////////////////
 
-		constexpr float cameraSpeed = 7.0f;
-
-		cameraX = std::max(cameraX - cameraSpeed * ts, m_NewCameraX);
-		cameraX = std::min(cameraX + cameraSpeed * ts, m_NewCameraX);
-		cameraY = std::max(cameraY - cameraSpeed * ts, m_NewCameraY);
-		cameraY = std::min(cameraY + cameraSpeed * ts, m_NewCameraY);
+		if (std::abs(m_NewCameraX - cameraX) > 0.000001) {
+			if (m_NewCameraX < cameraX) {
+				cameraX = std::max(cameraX - m_CameraSpeed * ts, m_NewCameraX);
+			} else {
+				cameraX = std::min(cameraX + m_CameraSpeed * ts, m_NewCameraX);
+			}
+		} else if (std::abs(m_NewCameraY - cameraY) > 0.000001) {
+			if (m_NewCameraY < cameraY) {
+				cameraY = std::max(cameraY - m_CameraSpeed * ts, m_NewCameraY);
+			} else {
+				cameraY = std::min(cameraY + m_CameraSpeed * ts, m_NewCameraY);
+			}
+		}
 	}
 
 public:
