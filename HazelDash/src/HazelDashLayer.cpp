@@ -707,7 +707,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 						if (IsEmpty(tileRight) && IsEmpty(tileBelowRight)) {
 							// bounce right
 							mass.State = MassState::Falling;
-							SwapEntities(row, col, row + Right.first, row + Right.second);
+							SwapEntities(row, col, row + Right.first, col + Right.second);
 							transform = glm::translate(transform, {Right.second, Right.first, 0.0f});
 							if (entity.HasComponent<Roll>()) {
 								auto& roll = entity.GetComponent<Roll>();
@@ -993,7 +993,8 @@ void HazelDashLayer::OnExplode(const int row, const int col) {
 			continue;
 		}
 		Hazel::Entity entity = m_Scene.CreateEntity();
-		entity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {row + offset.first + 0.5f, col + offset.second + 0.5f, 0.0f});
+		entity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {col + offset.second + 0.5f, row + offset.first + 0.5f, 0.0f});
+		entity.AddComponent<Hazel::SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 1.0f, 1.0f});
 		entity.AddComponent<Explosion>(Explosion::Ignite);
 		if (explodeToDiamond) {
 			entity.AddComponent<Animation>(animation2);
@@ -1054,6 +1055,7 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 			if (IsEmpty(tileInitial)) {
 				entity = m_Scene.CreateEntity();
 				entity.AddComponent<Tile>(tileInitial);
+				entity.AddComponent<Hazel::SpriteRendererComponent>();
 				entity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {pos.second + 0.5f, pos.first + 0.5f, 0.0f});
 				SetEntity(pos.first, pos.second, entity);
 			}
@@ -1062,6 +1064,7 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 			entity.AddComponent<Animation>(animation);
 			auto& tile = entity.GetComponent<Tile>();
 			tile = animation.Frames[animation.CurrentFrame]; // TODO: it would be nicer to use EnTT "short circuit" to automatically set the tile when Animation component is added
+			entity.GetComponent<Hazel::SpriteRendererComponent>().Color = CharToColor('A');
 		}
 	}
 }
@@ -1087,7 +1090,7 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 
 	// When we get here, other systems are finished iterating.
 	// It is now safe to destroy the game entities at position of explosion entities
-	m_Scene.m_Registry.group<Explosion>(entt::get<Hazel::TransformComponent, Animation, Tile>).each([this] (const auto entityHandle, auto& explosion, auto& transformComponent, auto& animation, auto& tile) {
+	m_Scene.m_Registry.group<Explosion>(entt::get<Hazel::TransformComponent, Animation, Hazel::SpriteRendererComponent, Tile>).each([this] (const auto entityHandle, auto& explosion, auto& transformComponent, auto& animation, auto& spriteRenderer, auto& tile) {
 		auto& transform = transformComponent.Transform;
 		int row = static_cast<int>(transform[3][1]);
 		int col = static_cast<int>(transform[3][0]);
@@ -1103,8 +1106,9 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 					entity.RemoveComponent<Explosion>();
 					entity.AddComponent<Mass>();
 					animation = CharToAnimation('d');
+					spriteRenderer.Color = CharToColor('d');
 				} else {
-					//HZ_ASSERT(Hazel::Entity(entityHandle, &m_Scene) == GetEntity(row, col), "Something has misplaced an explosion - game logic error!");
+					HZ_ASSERT(Hazel::Entity(entityHandle, &m_Scene) == GetEntity(row, col), "Something has misplaced an explosion - game logic error!");
 					ClearEntity(row, col);
 				}
 			}
@@ -1161,8 +1165,43 @@ void HazelDashLayer::SwapEntities(const int rowA, const int colA, const int rowB
 
 #ifdef _DEBUG
 void HazelDashLayer::OnImGuiRender() {
+	static float sz = 36.0f;
+
 	ImGui::Begin("Game Stats");
 	ImGui::Text("Score: %d", m_Score);
+
+	ImGui::Separator();
+	ImGui::Text("Key:");
+	ImGui::Indent();
+
+	glm::vec4 col = CharToColor('P');
+	ImGui::ColorEdit3("Player (move with WASD, or arrow keys)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('.');
+	ImGui::ColorEdit3("Dirt (dig out by moving player)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('w');
+	ImGui::ColorEdit3("Wall (cannot be dug out)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('d');
+	ImGui::ColorEdit3("Collectable", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('r');
+	ImGui::ColorEdit3("Boulder (will fall down and kill things, can be pushed)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('B');
+	ImGui::ColorEdit3("Butterfly (when killed, turns into collectables)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('F');
+	ImGui::ColorEdit3("Firefly (will kill player)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('A');
+	ImGui::ColorEdit3("Amoeba (grows, turns into collectables if fully enclosed)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	col = CharToColor('W');
+	ImGui::ColorEdit3("Steel Wall (indestructible)", &col.r, ImGuiColorEditFlags_NoPicker);
+
+	ImGui::Unindent();
 
 	ImGui::Separator();
 	ImGui::Text("Amoeba:");

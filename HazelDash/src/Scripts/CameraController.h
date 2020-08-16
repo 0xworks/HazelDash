@@ -21,6 +21,13 @@ public:
 		//       However, the event system isn't quite there yet, so for now
 		//       just do this on every update
 		//
+
+		// if tracked entity is no longer valid (e.g. player might have been killed)
+		// then nothing to do here...
+		if (!m_TrackEntity) {
+			return;
+		}
+
 		auto& cameraTransform = GetComponent<Hazel::TransformComponent>().Transform;
 		auto& cameraProjection = GetComponent<Hazel::CameraComponent>().Camera.GetProjection();
 
