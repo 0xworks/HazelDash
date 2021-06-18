@@ -3,7 +3,7 @@ project "HazelDash"
 	kind "ConsoleApp"
 	language "C++"
 	cppdialect "C++17"
-	staticruntime "on"
+	staticruntime "off"
 
 	configuration "vs*"
 		buildoptions { "/permissive-" }
@@ -44,6 +44,9 @@ project "HazelDash"
 		defines "HZ_DEBUG"
 		runtime "Debug"
 		symbols "on"
+        postbuildcommands {
+           "{COPY} ../Hazel/vendor/VulkanSDK/bin/ %{cfg.targetdir}"
+        }
 
 	filter "configurations:Profile"
 		defines

@@ -10,18 +10,31 @@ There are many BoulderDash clones out there, and most of them are far better tha
 
 
 ## Repository Structure
-The following branches are active:
+**Important, please read**
+
+There are several different branches of the code in this repository.  After cloning the repository, be sure to checkout the branch that most reflects what you are interested in.<br/>
+Whenever you switch branches, you will need to also re-update the submodules, and re-run `VS2019-GenProjects.bat`.<br/>
+The table below describes what the various branches are, and what state they are in.
+
 branch|description
 ------|-----------
-|master|  The intention is to keep the master branch up to date with the current master branch of Hazel, and so as new features are added in to the Hazel Game Engine, I will update this game to demonstrate use of those features.  Currently using Hazel Engine code as at episode 82.
-|audio|   This is basically the same as the master branch, except with sound effects.  It uses HazelAudio which is an additional plugin for the Hazel engine that is not (yet) covered in the Game Engine Series.
-|079-ecs| This branch demonstrates use of the ECS developed in the game engine series episodes 76-79.  This branch uses Hazel Engine as it was at episode 79.
-|065-batch_render|  This branch demonstrates use of the Hazel batch rendering.  This branch uses Hazel Engine as it was at episode 65.
+|master|  The intention is to keep the master branch up to date with the current master branch of Hazel, and so as new features are added in to the Hazel Game Engine, I will update this game to demonstrate use of those features.  This branch uses Hazel's scene renderer to render the game.<br/>**Warning** The version of Hazel used in this branch has a dependency on the Vulkan SDK.  I suggest downloading and installing that from https://www.lunarg.com/vulkan-sdk/ before attempting to use this branch.  You will also need the VulkanSDK debug libs which can be downloaded from the same location.  Extract the debug libs archive into Hazel/vendor/VulkanSDK.<br/>**Note** There is a script (Hazel/scripts/setup.bat) which does the VulkanSDK setup for you.  However, this script requires a working python installation, and also has been found to not work in some situations.  I suggest doing the VulkanSDK setup manually rather than using the script (ymmv).<br/>**Warning** The version of Hazel used in this branch contains SpriteRenderer which can only do coloured squares (textured sprites are coming) - so the game does not look very interesting (it's a bunch of coloured squares).  The gameplay is all there though, so you can use your imagination!<br/>This branch is uses Hazel Engine as at episode 100.
+|079-ecs| This branch demonstrates use of the ECS developed in the game engine series episodes 76-79.<br/>This branch uses Hazel Engine as it was at episode 79.
+|065-batch_render|  This branch demonstrates use of the Hazel batch rendering.<br/>This branch uses Hazel Engine as it was at episode 65.
+|audio|   This is basically the same as the 079-ecs branch, except with sound effects.  It uses HazelAudio which is an additional plugin for the Hazel engine that is not (yet) covered in the Game Engine Series.
 
 
 ## Build
 Only Visual Studio 2019 on Windows has been tested.
 
-* Clone the repository with `git clone --recursive https://github.com/Freeman40/HazelDash`
-* Run the script `VS2019-GenProjects.bat` from the Build subdirectory
-* Open the generated VS2019 solution file from the Build/VS2019 subdirectory.  Build project.
+1. Download and install the Vulkan SDK  (only needed if you want to build for master branch)
+2. Clone the repository with `git clone https://github.com/Freeman40/HazelDash`
+3. `cd HazelDash`
+3. Checkout the branch that interests you e.g. `git checkout 065-batch_render`
+4. Update submodules `git submodule update --init --recursive`
+5. Run the script `VS2019-GenProjects.bat` from the Build subdirectory
+6. Open the generated VS2019 solution file from the Build/VS2019 subdirectory.  Build project.
+
+Repeat steps 4 to 7 if you want to change to a different branch.
+
+When running for the first time, you might need to move ImGui popup windows out of the way...

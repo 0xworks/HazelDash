@@ -1,4 +1,4 @@
-include "./premake_customizations.lua"
+include "Hazel/vendor/premake/premake_customization/solution_items.lua"
 
 workspace "HazelDash"
 	location ("Build/" .. _ACTION)
@@ -10,12 +10,13 @@ workspace "HazelDash"
 	{
 		"Debug",
 		"Profile",
-		"Release",
+		"Release"
 	}
 
-	workspace_files 
+	solution_items
 	{
-		"../../.editorconfig"
+		"../../.editorconfig",
+		"../../README.md"
 	}
 	
 	flags
