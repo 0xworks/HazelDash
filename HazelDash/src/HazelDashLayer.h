@@ -5,9 +5,8 @@
 #include "Hazel/Core/Layer.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Renderer/Texture.h"
+#include "Hazel/Scene/Components.h"
 #include "Hazel/Scene/Entity.h"
-
-#include <glm/glm.hpp>
 
 class HazelDashLayer : public Hazel::Layer
 {
@@ -31,7 +30,7 @@ private:
 
 	void LoadScene(int level);
 
-	// game "systems" and "events" (TODO: rework into proper systems and events, later...)
+	// game "systems" and "events" (TODO: rework to use ScriptComponents instead)
 	void PhysicsFixedUpdate();
 	void PlayerControllerFixedUpdate();
 	void EnemiesFixedUpdate();
@@ -39,7 +38,7 @@ private:
 	void AmoebaFixedUpdate();
 	void OnSolidify(const Tile solidfyTo);
 	void PlayerControllerUpdate(Hazel::Timestep ts);
-	bool TryMovePlayer(glm::mat4& transform, const std::pair<int, int> direction, const bool ctrlPressed);
+	bool TryMovePlayer(Hazel::TransformComponent& transformComponent, const std::pair<int, int> direction, const bool ctrlPressed);
 	void OnPlayerDied();
 	void OnLevelCompleted();
 	void OnIncreaseScore();

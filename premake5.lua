@@ -31,6 +31,7 @@ group "Dependencies"
 	include "Hazel/Hazel/vendor/GLFW"
 	include "Hazel/Hazel/vendor/Glad"
 	include "Hazel/Hazel/vendor/imgui"	
+	include "Hazel/Hazel/vendor/yaml-cpp"	
 
 group ""
 	include "HazelDash"

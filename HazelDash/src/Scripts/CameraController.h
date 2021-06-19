@@ -1,10 +1,19 @@
+#pragma once
+
 #include "Hazel/Scene/Components.h"
 #include "Hazel/Scene/ScriptableEntity.h"
 
 class CameraController : public Hazel::ScriptableEntity {
 public:
 
-	CameraController(Hazel::Entity entity) : ScriptableEntity(entity) {}
+	CameraController(Hazel::Entity trackEntity, float levelWidth, float levelHeight, float cameraSpeed)
+	: m_TrackEntity{trackEntity}
+	, m_LevelWidth{levelWidth}
+	, m_LevelHeight{levelHeight}
+	, m_CameraSpeed{cameraSpeed}
+	{}
+
+	virtual ~CameraController() = default;
 
 	void OnCreate() {
 	}
@@ -26,9 +35,8 @@ public:
 		//       or the player has moved.
 		//       However, the event system isn't quite there yet, so for now
 		//       just do this on every update
-		//
-		auto& cameraTransform = GetComponent<Hazel::TransformComponent>().Transform;
-		auto& cameraProjection = GetComponent<Hazel::CameraComponent>().Camera.GetProjection();
+		auto& cameraTransform = GetComponent<Hazel::TransformComponent>();
+		const auto& cameraProjection = GetComponent<Hazel::CameraComponent>().Camera.GetProjection();
 
 		// HACK: There is currently no easy way to get the width/height of the (2d) camera's viewport
 		//       So, we'll just extract it from the projection matrix
@@ -36,13 +44,13 @@ public:
 		float halfHeight = 1.0f / cameraProjection[1][1];
 
 		// similarly, extract the camera's position in world space from its transform
-		float& cameraX = cameraTransform[3][0];
-		float& cameraY = cameraTransform[3][1];
+		float& cameraX = cameraTransform.Translation.x;
+		float& cameraY = cameraTransform.Translation.y;
 
 		// grab the tracked entity's current position
-		auto& trackTransform = m_TrackEntity.GetComponent<Hazel::TransformComponent>().Transform;
-		float trackX = trackTransform[3][0];
-		float trackY = trackTransform[3][1];
+		auto& trackTransform = m_TrackEntity.GetComponent<Hazel::TransformComponent>();
+		const float trackX = trackTransform.Translation.x;
+		const float trackY = trackTransform.Translation.y;
 
 		m_NewCameraX = cameraX;
 		m_NewCameraY = cameraY;
@@ -74,10 +82,7 @@ public:
 		}
 	}
 
-public:
-	// TODO:
-	// These are script "parameters", but there isn't any way to set them nicely yet, so for now they are just
-	// public variables...
+private:
 	Hazel::Entity m_TrackEntity = {}; // the entity that this controller makes the camera "track"
 
 	float m_LevelWidth = 0.0f;
@@ -88,7 +93,6 @@ public:
 	float m_DeltaY = 5.0f;      // how much does the camera move in the Y axis in order to follow the tracked entity
 	float m_Border = 3.0;       // how close can the tracked entity get to the edge of the viewport before the camera should move
 
-private:
 	float m_NewCameraX = 0.0f;
 	float m_NewCameraY = 0.0;
 

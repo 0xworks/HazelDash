@@ -7,7 +7,7 @@
 class HazelDashApp : public Hazel::Application
 {
 public:
-	HazelDashApp()
+	HazelDashApp(Hazel::ApplicationCommandLineArgs args)
 	{
 		Random::Init();
 		PushLayer(new HazelDashLayer());
@@ -15,7 +15,7 @@ public:
 
 };
 
-Hazel::Application* Hazel::CreateApplication()
+Hazel::Application* Hazel::CreateApplication(Hazel::ApplicationCommandLineArgs args)
 {
-	return new HazelDashApp();
+	return new HazelDashApp(args);
 }

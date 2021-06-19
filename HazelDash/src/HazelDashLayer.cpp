@@ -14,6 +14,7 @@
 #include "Random.h"
 
 #include "Hazel/Core/Application.h"
+#include "Hazel/Core/Input.h"
 #include "Hazel/Core/KeyCodes.h"
 #include "Hazel/Events/KeyEvent.h"
 #include "Hazel/Renderer/RenderCommand.h"
@@ -26,6 +27,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <unordered_set>
 
 #ifdef _DEBUG
 #include <imgui.h>
@@ -297,7 +299,7 @@ Tile CharToTile(const char ch) {
 		{' ', Tile::Empty}
 	};
 	std::unordered_map<char, Tile>::const_iterator tile = tileMap.find(ch);
-	HZ_ASSERT(tile != tileMap.end(), "ERROR: Unknown character '{}' in level definition", ch);
+	HZ_ASSERT(tile != tileMap.end(), "ERROR: Unknown character in level definition");
 	return (tile != tileMap.end()) ? tile->second : Tile::Empty;
 }
 
@@ -335,7 +337,7 @@ glm::vec4 CharToColor(const char ch) {
 		{' ', {0.0f, 0.0f, 0.0f, 1.0f}}
 	};
 	std::unordered_map<char, glm::vec4>::const_iterator color = colorMap.find(ch);
-	HZ_ASSERT(color != colorMap.end(), "ERROR: Unknown character '{}' in level definition", ch);
+	HZ_ASSERT(color != colorMap.end(), "ERROR: Unknown character in level definition");
 	return (color != colorMap.end()) ? color->second : glm::vec4 {};
 }
 
@@ -519,7 +521,7 @@ void HazelDashLayer::OnUpdate(Hazel::Timestep ts) {
 	PlayerControllerUpdate(ts);
 	ExploderUpdate(ts);
 	AnimatorUpdate(ts);
-	m_Scene.OnUpdate(ts);
+	m_Scene.OnUpdateRuntime(ts);
 
 	HZ_PROFILE_FRAMEMARKER();
 
@@ -542,13 +544,13 @@ void HazelDashLayer::OnEvent(Hazel::Event& e) {
 
 
 bool HazelDashLayer::OnKeyPressed(Hazel::KeyPressedEvent& e) {
-	if (e.GetKeyCode() == HZ_KEY_SPACE) {
+	if (e.GetKeyCode() == Hazel::Key::Space) {
 		if (m_PlayerIsAlive) {
 			m_GamePaused = !m_GamePaused;
 		} else {
 			LoadScene(m_CurrentLevel);
 		}
-	} else if (e.GetKeyCode() == HZ_KEY_ESCAPE) {
+	} else if (e.GetKeyCode() == Hazel::Key::Escape) {
 		LoadScene(m_CurrentLevel);
 	}
 	return true;
@@ -596,8 +598,7 @@ void HazelDashLayer::LoadScene(int level) {
 						entity.AddComponent<PlayerState>(PlayerState::Idle);
 						playerEntity = entity;
 					}
-					auto& transform = entity.GetComponent<Hazel::TransformComponent>().Transform;
-					transform = glm::translate(glm::identity<glm::mat4>(), {col + 0.5f, row + 0.5f, 0.0f});
+					entity.GetComponent<Hazel::TransformComponent>().Translation = {col + 0.5f, row + 0.5f, 0.0f};
 					entity.AddComponent<Tile>(tile);
 					entity.AddComponent<Hazel::SpriteRendererComponent>(CharToColor(ch)); // TODO: replace with proper "sprite" renderer once we have some sort of asset management
 					Animation animation = CharToAnimation(ch);
@@ -629,20 +630,10 @@ void HazelDashLayer::LoadScene(int level) {
 #endif
 	cc.Camera.SetViewportSize(viewPortWidth, viewPortHeight);  // The magnitude of these numbers doesn't matter, only the ratio between them is important.
 	cc.Camera.SetOrthographicSize(static_cast<float>(std::min(m_Height, viewPortHeight)));  // This is what controls the actual size of the viewport.
-	cameraEntity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {viewPortWidth / 2.0f, viewPortHeight / 2.0f, 0.0f});
+	cameraEntity.GetComponent<Hazel::TransformComponent>().Translation = {viewPortWidth / 2.0f, viewPortHeight / 2.0f, 0.0f};
 
 	auto& nsc = cameraEntity.AddComponent<Hazel::NativeScriptComponent>();
-	nsc.Bind<CameraController>();
-
-	// HACK: instantiate the script component, on cameraEntity
-	// HACK: There is currently no way to pass parameters in to the "instance".
-	//       This is a bit ugly, but will do for now...
-	nsc.InstantiateFunction(cameraEntity);
-	auto* instance = static_cast<CameraController*>(nsc.Instance);
-	instance->m_TrackEntity = playerEntity;
-	instance->m_LevelWidth = static_cast<float>(m_Width);
-	instance->m_LevelHeight = static_cast<float>(m_Height);
-	instance->m_CameraSpeed = (1.0f / m_FixedTimestep) - 1.0f;
+	nsc.Bind<CameraController>(playerEntity, static_cast<float>(m_Width), static_cast<float>(m_Height), (1.0f / m_FixedTimestep) - 1.0f);
 }
 
 
@@ -665,10 +656,9 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 	static const std::pair<int, int> Right = {0, 1};
 	static const std::pair<int, int> BelowRight = {-1, 1};
 
-	m_Scene.m_Registry.group<Mass>(entt::get<Hazel::TransformComponent>).each([this] (const auto entityHandle, auto& mass, auto& transformComponent) {
-		auto& transform = transformComponent.Transform;
-		int row = static_cast<int>(transform[3][1]);
-		int col = static_cast<int>(transform[3][0]);
+	for(auto&& [entityHandle, mass, transformComponent] : m_Scene.m_Registry.group<Mass>(entt::get<Hazel::TransformComponent>).each()) {
+		int row = static_cast<int>(transformComponent.Translation.y);
+		int col = static_cast<int>(transformComponent.Translation.x);
 		Hazel::Entity entity(entityHandle, &m_Scene);
 		Hazel::Entity entityBelow = GetEntity(row + Below.first, col + Below.second);
 		auto tileBelow = entityBelow.GetComponent<Tile>();
@@ -676,7 +666,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 			mass.State = MassState::Falling;
 			++mass.HeightFallen;
 			SwapEntities(row, col, row + Below.first, col + Below.second);
-			transform = glm::translate(transform, {Below.second, Below.first, 0.0f});
+			transformComponent.Translation += glm::vec3{Below.second, Below.first, 0.0f};
 		} else {
 			if ((mass.State == MassState::Falling) && IsExplosive(tileBelow)) {
 				OnExplode(row + Below.first, col + Below.second);
@@ -692,7 +682,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 						// bounce left
 						mass.State = MassState::Falling;
 						SwapEntities(row, col, row + Left.first, col + Left.second);
-						transform = glm::translate(transform, {Left.second, Left.first, 0.0f});
+						transformComponent.Translation += glm::vec3{Left.second, Left.first, 0.0f};
 						if (entity.HasComponent<Roll>()) {
 							auto& roll = entity.GetComponent<Roll>();
 							auto& tile = entity.GetComponent<Tile>();
@@ -708,7 +698,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 							// bounce right
 							mass.State = MassState::Falling;
 							SwapEntities(row, col, row + Right.first, col + Right.second);
-							transform = glm::translate(transform, {Right.second, Right.first, 0.0f});
+							transformComponent.Translation += glm::vec3{Right.second, Right.first, 0.0f};
 							if (entity.HasComponent<Roll>()) {
 								auto& roll = entity.GetComponent<Roll>();
 								auto& tile = entity.GetComponent<Tile>();
@@ -726,7 +716,7 @@ void HazelDashLayer::PhysicsFixedUpdate() {
 				}
 			}
 		}
-	});
+	}
 }
 
 
@@ -740,23 +730,22 @@ void HazelDashLayer::PlayerControllerFixedUpdate() {
 
 	static bool lastWasLeft = false; // hack
 
-	m_Scene.m_Registry.group<PlayerState>(entt::get<Hazel::TransformComponent, Animation>).each([this] (auto& state, auto& transformComponent, auto& animation) {
-		auto& transform = transformComponent.Transform;
+	for (auto&& [entityHandle, state, transformComponent, animation] : m_Scene.m_Registry.group<PlayerState>(entt::get<Hazel::TransformComponent, Animation>).each()) {
 		PlayerState newState = PlayerState::Idle;
 		PlayerState secondaryState = PlayerState::Idle;
 
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_LEFT) || Hazel::Input::IsKeyPressed(HZ_KEY_A)) {
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::Left) || Hazel::Input::IsKeyPressed(Hazel::Key::A)) {
 			newState = PlayerState::MovingLeft;
 			lastWasLeft = true;
-		} else if (Hazel::Input::IsKeyPressed(HZ_KEY_RIGHT) || Hazel::Input::IsKeyPressed(HZ_KEY_D)) {
+		} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Right) || Hazel::Input::IsKeyPressed(Hazel::Key::D)) {
 			newState = PlayerState::MovingRight;
 			lastWasLeft = false;
 		}
 
-		if (Hazel::Input::IsKeyPressed(HZ_KEY_UP) || Hazel::Input::IsKeyPressed(HZ_KEY_W)) {
+		if (Hazel::Input::IsKeyPressed(Hazel::Key::Up) || Hazel::Input::IsKeyPressed(Hazel::Key::W)) {
 			secondaryState = newState;
 			newState = PlayerState::MovingUp;
-		} else if (Hazel::Input::IsKeyPressed(HZ_KEY_DOWN) || Hazel::Input::IsKeyPressed(HZ_KEY_S)) {
+		} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Down) || Hazel::Input::IsKeyPressed(Hazel::Key::S)) {
 			secondaryState = newState;
 			newState = PlayerState::MovingDown;
 		}
@@ -773,37 +762,38 @@ void HazelDashLayer::PlayerControllerFixedUpdate() {
 			}
 		}
 
-		bool ctrlPressed = Hazel::Input::IsKeyPressed(HZ_KEY_LEFT_CONTROL) || Hazel::Input::IsKeyPressed(HZ_KEY_RIGHT_CONTROL);
-		int oldRow = static_cast<int>(transform[3][1]);
-		int oldCol = static_cast<int>(transform[3][0]);
+		bool ctrlPressed = Hazel::Input::IsKeyPressed(Hazel::Key::LeftControl) || Hazel::Input::IsKeyPressed(Hazel::Key::RightControl);
+		int oldRow = static_cast<int>(transformComponent.Translation.y);
+		int oldCol = static_cast<int>(transformComponent.Translation.x);
 		switch (state) {
 			case PlayerState::MovingLeft:
-				TryMovePlayer(transform, Left, ctrlPressed);
+				TryMovePlayer(transformComponent, Left, ctrlPressed);
 				break;
 			case PlayerState::MovingRight:
-				TryMovePlayer(transform, Right, ctrlPressed);
+				TryMovePlayer( transformComponent, Right, ctrlPressed);
 				break;
 			case PlayerState::MovingUp:
-				if (!TryMovePlayer(transform, Up, ctrlPressed)) {
+				if (!TryMovePlayer(transformComponent, Up, ctrlPressed)) {
 					if (secondaryState == PlayerState::MovingLeft) {
-						TryMovePlayer(transform, Left, ctrlPressed);
+						TryMovePlayer(transformComponent, Left, ctrlPressed);
 					} else if (secondaryState == PlayerState::MovingRight) {
-						TryMovePlayer(transform, Right, ctrlPressed);
+						TryMovePlayer(transformComponent, Right, ctrlPressed);
 					}
 				}
 				break;
 			case PlayerState::MovingDown:
-				if (!TryMovePlayer(transform, Down, ctrlPressed)) {
+				if (!TryMovePlayer(transformComponent, Down, ctrlPressed)) {
 					if (secondaryState == PlayerState::MovingLeft) {
-						TryMovePlayer(transform, Left, ctrlPressed);
+						TryMovePlayer(transformComponent, Left, ctrlPressed);
 					} else if (secondaryState == PlayerState::MovingRight) {
-						TryMovePlayer(transform, Right, ctrlPressed);
+						TryMovePlayer(transformComponent, Right, ctrlPressed);
 					}
 				}
 				break;
 		}
-		int row = static_cast<int>(transform[3][1]);
-		int col = static_cast<int>(transform[3][0]);
+
+		int row = static_cast<int>(transformComponent.Translation.y);
+		int col = static_cast<int>(transformComponent.Translation.x);
 		if ((row != oldRow) || (col != oldCol)) {
 			Hazel::Entity entityAtNewPos = GetEntity(row, col);
 			auto tile = entityAtNewPos.GetComponent<Tile>();
@@ -816,13 +806,13 @@ void HazelDashLayer::PlayerControllerFixedUpdate() {
 				OnIncreaseScore();
 			}
 		}
-	});
+	}
 }
 
 
 void HazelDashLayer::PlayerControllerUpdate(Hazel::Timestep ts) {
 	HZ_PROFILE_FUNCTION();
-	m_Scene.m_Registry.group<PlayerState>(entt::get<Animation>).each([this] (auto& state, auto& animation) {
+	for (auto&& [entityHandle, state, animation] : m_Scene.m_Registry.group<PlayerState>(entt::get<Animation>).each()) {
 		if (animation.CurrentFrame == (animation.Frames.size() - 1)) {
 			if (IsIdle(state)) {
 				PlayerState newState = state;
@@ -840,20 +830,20 @@ void HazelDashLayer::PlayerControllerUpdate(Hazel::Timestep ts) {
 				}
 			}
 		}
-	});
+	}
 }
 
 
-bool HazelDashLayer::TryMovePlayer(glm::mat4& transform, const std::pair<int, int> direction, const bool ctrlPressed) {
+bool HazelDashLayer::TryMovePlayer(Hazel::TransformComponent& transformComponent, const std::pair<int, int> direction, const bool ctrlPressed) {
 	bool retVal = false;
-	int row = static_cast<int>(transform[3][1]);
-	int col = static_cast<int>(transform[3][0]);
+	int row = static_cast<int>(transformComponent.Translation.y);
+	int col = static_cast<int>(transformComponent.Translation.x);
 	Hazel::Entity entity = GetEntity(row + direction.first, col + direction.second);
 	auto& tile = entity.GetComponent<Tile>();
 	if (CanBeOccupied(tile)) {
 		retVal = true;
 		if (!ctrlPressed) {
-			transform = glm::translate(transform, {direction.second, direction.first, 0.0f});
+			transformComponent.Translation += glm::vec3{direction.second, direction.first, 0.0f};
 		}
 	} else if ((direction.first == 0) && IsPushable(tile)) {
 		retVal = true;
@@ -869,14 +859,14 @@ bool HazelDashLayer::TryMovePlayer(glm::mat4& transform, const std::pair<int, in
 			if (!IsEmpty(tileBelow) && IsEmpty(tileAcross)) {
 				SwapEntities(rowAcross, colAcross, row + direction.first, col + direction.second);
 				auto& transformPushed = entity.GetComponent<Hazel::TransformComponent>();
-				transformPushed.Transform = glm::translate(transformPushed.Transform, {direction.second, direction.first, 0.0f});
+				transformPushed.Translation += glm::vec3{direction.second, direction.first, 0.0f};
 				if (entity.HasComponent<Roll>()) {
 					auto& roll = entity.GetComponent<Roll>();
 					roll.CurrentFrame = (roll.CurrentFrame + direction.second) % roll.Frames.size();
 					tile = roll.Frames[roll.CurrentFrame];
 				}
 				if (!ctrlPressed) {
-					transform = glm::translate(transform, {direction.second, direction.first, 0.0f});
+					transformComponent.Translation += glm::vec3{direction.second, direction.first, 0.0f};
 				}
 			}
 		}
@@ -917,10 +907,9 @@ void HazelDashLayer::EnemiesFixedUpdate() {
 		std::pair<int, int>{ 0,  1}
 	};
 
-	m_Scene.m_Registry.group<EnemyMovement>(entt::get<Hazel::TransformComponent>).each([this] (auto& movement, auto& transformComponent) {
-		auto& transform = transformComponent.Transform;
-		int row = static_cast<int>(transform[3][1]);
-		int col = static_cast<int>(transform[3][0]);
+	for (auto&& [entityHandle, movement, transformComponent] : m_Scene.m_Registry.group<EnemyMovement>(entt::get<Hazel::TransformComponent>).each()) {
+		int row = static_cast<int>(transformComponent.Translation.y);
+		int col = static_cast<int>(transformComponent.Translation.x);
 
 		// If next to player, then explode (and do not move)
 		bool move = true;
@@ -940,20 +929,20 @@ void HazelDashLayer::EnemiesFixedUpdate() {
 			int preferredCol = col + Directions[direction].second;
 			if (IsEmpty(GetEntity(preferredRow, preferredCol).GetComponent<Tile>())) {
 				SwapEntities(row, col, preferredRow, preferredCol);
-				transform = glm::translate(transform, {Directions[direction].second, Directions[direction].first, 0.0f});
+				transformComponent.Translation += glm::vec3{Directions[direction].second, Directions[direction].first, 0.0f};
 				movement.Direction = direction;
 			} else {
 				int straightRow = row + Directions[movement.Direction].first;
 				int straightCol = col + Directions[movement.Direction].second;
 				if (IsEmpty(GetEntity(straightRow, straightCol).GetComponent<Tile>())) {
 					SwapEntities(row, col, straightRow, straightCol);
-					transform = glm::translate(transform, {Directions[movement.Direction].second, Directions[movement.Direction].first, 0.0f});
+					transformComponent.Translation += glm::vec3{Directions[movement.Direction].second, Directions[movement.Direction].first, 0.0f};
 				} else {
 					movement.Direction = (movement.Direction + 2) % Directions.size();
 				}
 			}
 		}
-	});
+	}
 }
 
 
@@ -993,7 +982,7 @@ void HazelDashLayer::OnExplode(const int row, const int col) {
 			continue;
 		}
 		Hazel::Entity entity = m_Scene.CreateEntity();
-		entity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {col + offset.second + 0.5f, row + offset.first + 0.5f, 0.0f});
+		entity.GetComponent<Hazel::TransformComponent>().Translation = {col + offset.second + 0.5f, row + offset.first + 0.5f, 0.0f};
 		entity.AddComponent<Hazel::SpriteRendererComponent>(glm::vec4{1.0f, 0.0f, 1.0f, 1.0f});
 		entity.AddComponent<Explosion>(Explosion::Ignite);
 		if (explodeToDiamond) {
@@ -1027,11 +1016,10 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 	m_AmoebaPotential = 0;
 	std::unordered_set<std::pair<int,int>> growPositions;
 
-	amoebas.each([&] (auto& amoeba, auto& transformComponent) {
-		auto& transform = transformComponent.Transform;
+	for(auto&& [entityHandle, amoeba, transformComponent] : amoebas.each()) {
 		for (auto direction : Directions) {
-			int row = static_cast<int>(transform[3][1]);
-			int col = static_cast<int>(transform[3][0]);
+			int row = static_cast<int>(transformComponent.Translation.y);
+			int col = static_cast<int>(transformComponent.Translation.x);
 			Hazel::Entity entityOther = GetEntity(row + direction.first, col + direction.second);
 			auto tile = entityOther.GetComponent<Tile>();
 			if (IsEmpty(tile) || tile == Tile::Dirt1) {
@@ -1044,7 +1032,7 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 			}
 			amoeba.GrowthProbability *= 1.0f + static_cast<float>(amoebas.size()) / 200000.0f;
 		}
-	});
+	}
 
 	if (m_AmoebaPotential == 0) {
 		OnSolidify(Tile::Diamond0);
@@ -1056,7 +1044,7 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 				entity = m_Scene.CreateEntity();
 				entity.AddComponent<Tile>(tileInitial);
 				entity.AddComponent<Hazel::SpriteRendererComponent>();
-				entity.GetComponent<Hazel::TransformComponent>().Transform = glm::translate(glm::identity<glm::mat4>(), {pos.second + 0.5f, pos.first + 0.5f, 0.0f});
+				entity.GetComponent<Hazel::TransformComponent>().Translation = {pos.second + 0.5f, pos.first + 0.5f, 0.0f};
 				SetEntity(pos.first, pos.second, entity);
 			}
 			entity.AddComponent<Amoeba>();
@@ -1071,7 +1059,7 @@ void HazelDashLayer::AmoebaFixedUpdate() {
 
 
 void HazelDashLayer::OnSolidify(const Tile solidifyTo) {
-	m_Scene.m_Registry.view<Amoeba, Tile>().each([&] (const auto entityHandle, auto& amoeba, auto& tile) {
+	for (auto&& [entityHandle, amoeba, tile] : m_Scene.m_Registry.view<Amoeba, Tile>().each()) {
 		Hazel::Entity entity(entityHandle, &m_Scene);
 		entity.RemoveComponent<Amoeba>();
 		tile = solidifyTo;
@@ -1081,7 +1069,7 @@ void HazelDashLayer::OnSolidify(const Tile solidifyTo) {
 		} else {
 			entity.RemoveComponent<Animation>();
 		}
-	});
+	}
 }
 
 
@@ -1090,10 +1078,9 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 
 	// When we get here, other systems are finished iterating.
 	// It is now safe to destroy the game entities at position of explosion entities
-	m_Scene.m_Registry.group<Explosion>(entt::get<Hazel::TransformComponent, Animation, Hazel::SpriteRendererComponent, Tile>).each([this] (const auto entityHandle, auto& explosion, auto& transformComponent, auto& animation, auto& spriteRenderer, auto& tile) {
-		auto& transform = transformComponent.Transform;
-		int row = static_cast<int>(transform[3][1]);
-		int col = static_cast<int>(transform[3][0]);
+	for (auto&& [entityHandle, explosion, transformComponent, animation, spriteRenderer, tile] : m_Scene.m_Registry.group<Explosion>(entt::get<Hazel::TransformComponent, Animation, Hazel::SpriteRendererComponent, Tile>).each()) {
+		int row = static_cast<int>(transformComponent.Translation.y);
+		int col = static_cast<int>(transformComponent.Translation.x);
 		if (explosion == Explosion::Ignite) {
 			ClearEntity(row, col);
 			SetEntity(row, col, {entityHandle, &m_Scene});
@@ -1113,7 +1100,7 @@ void HazelDashLayer::ExploderUpdate(Hazel::Timestep ts) {
 				}
 			}
 		}
-	});
+	}
 }
 
 
@@ -1123,7 +1110,8 @@ void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
 	m_AnimatorAccumulatedTs += ts;
 	if (m_AnimatorAccumulatedTs > m_AnimationTimestep) {
 		m_AnimatorAccumulatedTs = 0.0f;
-		m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each([this] (const auto entityHandle, auto& animation, auto& tile) {
+
+		for (auto&& [entityHandle, animation, tile] : m_Scene.m_Registry.group<Animation>(entt::get<Tile>).each()) {
 			if (++animation.CurrentFrame >= animation.Frames.size()) {
 				if (animation.Repeat) {
 					animation.CurrentFrame = 0;
@@ -1134,7 +1122,7 @@ void HazelDashLayer::AnimatorUpdate(Hazel::Timestep ts) {
 				}
 			}
 			tile = animation.Frames[animation.CurrentFrame];
-		});
+		}
 	}
 }
 
