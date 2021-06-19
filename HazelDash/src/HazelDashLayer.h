@@ -77,4 +77,9 @@ private:
 	bool m_GamePaused;
 	bool m_PlayerIsAlive;   // if false, then pressing spacebar restarts.  Otherwise, pressing spacebar pauses
 	bool m_WonLevel;
+
+#ifdef _DEBUG
+	bool m_bIMGuiHovered = false;
+	bool m_bIMGuiFocused = false;
+#endif
 };

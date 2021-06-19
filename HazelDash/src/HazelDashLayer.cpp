@@ -544,16 +544,22 @@ void HazelDashLayer::OnEvent(Hazel::Event& e) {
 
 
 bool HazelDashLayer::OnKeyPressed(Hazel::KeyPressedEvent& e) {
-	if (e.GetKeyCode() == Hazel::Key::Space) {
-		if (m_PlayerIsAlive) {
-			m_GamePaused = !m_GamePaused;
-		} else {
+#ifdef _DEBUG
+	if (!m_bIMGuiFocused) {
+#endif
+		if (e.GetKeyCode() == Hazel::Key::Space) {
+			if (m_PlayerIsAlive) {
+				m_GamePaused = !m_GamePaused;
+			} else {
+				LoadScene(m_CurrentLevel);
+			}
+		} else if (e.GetKeyCode() == Hazel::Key::Escape) {
 			LoadScene(m_CurrentLevel);
 		}
-	} else if (e.GetKeyCode() == Hazel::Key::Escape) {
-		LoadScene(m_CurrentLevel);
+		return true;
+#ifdef _DEBUG
 	}
-	return true;
+#endif
 }
 
 
@@ -730,83 +736,89 @@ void HazelDashLayer::PlayerControllerFixedUpdate() {
 
 	static bool lastWasLeft = false; // hack
 
-	for (auto&& [entityHandle, state, transformComponent, animation] : m_Scene.m_Registry.group<PlayerState>(entt::get<Hazel::TransformComponent, Animation>).each()) {
-		PlayerState newState = PlayerState::Idle;
-		PlayerState secondaryState = PlayerState::Idle;
+#if _DEBUG
+	if (!m_bIMGuiFocused) {
+#endif
+		for (auto&& [entityHandle, state, transformComponent, animation] : m_Scene.m_Registry.group<PlayerState>(entt::get<Hazel::TransformComponent, Animation>).each()) {
+			PlayerState newState = PlayerState::Idle;
+			PlayerState secondaryState = PlayerState::Idle;
 
-		if (Hazel::Input::IsKeyPressed(Hazel::Key::Left) || Hazel::Input::IsKeyPressed(Hazel::Key::A)) {
-			newState = PlayerState::MovingLeft;
-			lastWasLeft = true;
-		} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Right) || Hazel::Input::IsKeyPressed(Hazel::Key::D)) {
-			newState = PlayerState::MovingRight;
-			lastWasLeft = false;
-		}
-
-		if (Hazel::Input::IsKeyPressed(Hazel::Key::Up) || Hazel::Input::IsKeyPressed(Hazel::Key::W)) {
-			secondaryState = newState;
-			newState = PlayerState::MovingUp;
-		} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Down) || Hazel::Input::IsKeyPressed(Hazel::Key::S)) {
-			secondaryState = newState;
-			newState = PlayerState::MovingDown;
-		}
-
-		if (IsIdle(state)) {
-			if (!IsIdle(newState)) {
-				state = newState;
-				animation = GetPlayerAnimation(state, lastWasLeft);
+			if (Hazel::Input::IsKeyPressed(Hazel::Key::Left) || Hazel::Input::IsKeyPressed(Hazel::Key::A)) {
+				newState = PlayerState::MovingLeft;
+				lastWasLeft = true;
+			} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Right) || Hazel::Input::IsKeyPressed(Hazel::Key::D)) {
+				newState = PlayerState::MovingRight;
+				lastWasLeft = false;
 			}
-		} else {
-			if (state != newState) {
-				state = newState;
-				animation = GetPlayerAnimation(state, lastWasLeft);
-			}
-		}
 
-		bool ctrlPressed = Hazel::Input::IsKeyPressed(Hazel::Key::LeftControl) || Hazel::Input::IsKeyPressed(Hazel::Key::RightControl);
-		int oldRow = static_cast<int>(transformComponent.Translation.y);
-		int oldCol = static_cast<int>(transformComponent.Translation.x);
-		switch (state) {
-			case PlayerState::MovingLeft:
-				TryMovePlayer(transformComponent, Left, ctrlPressed);
-				break;
-			case PlayerState::MovingRight:
-				TryMovePlayer( transformComponent, Right, ctrlPressed);
-				break;
-			case PlayerState::MovingUp:
-				if (!TryMovePlayer(transformComponent, Up, ctrlPressed)) {
-					if (secondaryState == PlayerState::MovingLeft) {
-						TryMovePlayer(transformComponent, Left, ctrlPressed);
-					} else if (secondaryState == PlayerState::MovingRight) {
-						TryMovePlayer(transformComponent, Right, ctrlPressed);
-					}
+			if (Hazel::Input::IsKeyPressed(Hazel::Key::Up) || Hazel::Input::IsKeyPressed(Hazel::Key::W)) {
+				secondaryState = newState;
+				newState = PlayerState::MovingUp;
+			} else if (Hazel::Input::IsKeyPressed(Hazel::Key::Down) || Hazel::Input::IsKeyPressed(Hazel::Key::S)) {
+				secondaryState = newState;
+				newState = PlayerState::MovingDown;
+			}
+
+			if (IsIdle(state)) {
+				if (!IsIdle(newState)) {
+					state = newState;
+					animation = GetPlayerAnimation(state, lastWasLeft);
 				}
-				break;
-			case PlayerState::MovingDown:
-				if (!TryMovePlayer(transformComponent, Down, ctrlPressed)) {
-					if (secondaryState == PlayerState::MovingLeft) {
-						TryMovePlayer(transformComponent, Left, ctrlPressed);
-					} else if (secondaryState == PlayerState::MovingRight) {
-						TryMovePlayer(transformComponent, Right, ctrlPressed);
-					}
+			} else {
+				if (state != newState) {
+					state = newState;
+					animation = GetPlayerAnimation(state, lastWasLeft);
 				}
-				break;
-		}
+			}
 
-		int row = static_cast<int>(transformComponent.Translation.y);
-		int col = static_cast<int>(transformComponent.Translation.x);
-		if ((row != oldRow) || (col != oldCol)) {
-			Hazel::Entity entityAtNewPos = GetEntity(row, col);
-			auto tile = entityAtNewPos.GetComponent<Tile>();
-			SwapEntities(oldRow, oldCol, row, col);
-			ClearEntity(oldRow, oldCol);
-			if (IsDoor(tile)) {
-				OnLevelCompleted();
+			bool ctrlPressed = Hazel::Input::IsKeyPressed(Hazel::Key::LeftControl) || Hazel::Input::IsKeyPressed(Hazel::Key::RightControl);
+			int oldRow = static_cast<int>(transformComponent.Translation.y);
+			int oldCol = static_cast<int>(transformComponent.Translation.x);
+			switch (state) {
+				case PlayerState::MovingLeft:
+					TryMovePlayer(transformComponent, Left, ctrlPressed);
+					break;
+				case PlayerState::MovingRight:
+					TryMovePlayer(transformComponent, Right, ctrlPressed);
+					break;
+				case PlayerState::MovingUp:
+					if (!TryMovePlayer(transformComponent, Up, ctrlPressed)) {
+						if (secondaryState == PlayerState::MovingLeft) {
+							TryMovePlayer(transformComponent, Left, ctrlPressed);
+						} else if (secondaryState == PlayerState::MovingRight) {
+							TryMovePlayer(transformComponent, Right, ctrlPressed);
+						}
+					}
+					break;
+				case PlayerState::MovingDown:
+					if (!TryMovePlayer(transformComponent, Down, ctrlPressed)) {
+						if (secondaryState == PlayerState::MovingLeft) {
+							TryMovePlayer(transformComponent, Left, ctrlPressed);
+						} else if (secondaryState == PlayerState::MovingRight) {
+							TryMovePlayer(transformComponent, Right, ctrlPressed);
+						}
+					}
+					break;
 			}
-			if (IsCollectable(tile)) {
-				OnIncreaseScore();
+
+			int row = static_cast<int>(transformComponent.Translation.y);
+			int col = static_cast<int>(transformComponent.Translation.x);
+			if ((row != oldRow) || (col != oldCol)) {
+				Hazel::Entity entityAtNewPos = GetEntity(row, col);
+				auto tile = entityAtNewPos.GetComponent<Tile>();
+				SwapEntities(oldRow, oldCol, row, col);
+				ClearEntity(oldRow, oldCol);
+				if (IsDoor(tile)) {
+					OnLevelCompleted();
+				}
+				if (IsCollectable(tile)) {
+					OnIncreaseScore();
+				}
 			}
 		}
+#ifdef _DEBUG
 	}
+#endif
 }
 
 
@@ -1163,31 +1175,31 @@ void HazelDashLayer::OnImGuiRender() {
 	ImGui::Indent();
 
 	glm::vec4 col = CharToColor('P');
-	ImGui::ColorEdit3("Player (move with WASD, or arrow keys)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Player (move with WASD, or arrow keys)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('.');
-	ImGui::ColorEdit3("Dirt (dig out by moving player)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Dirt (dig out by moving player)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('w');
-	ImGui::ColorEdit3("Wall (cannot be dug out)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Wall (cannot be dug out)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('d');
-	ImGui::ColorEdit3("Collectable", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Collectable", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('r');
-	ImGui::ColorEdit3("Boulder (will fall down and kill things, can be pushed)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Boulder (will fall down and kill things, can be pushed)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('B');
-	ImGui::ColorEdit3("Butterfly (when killed, turns into collectables)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Butterfly (when killed, turns into collectables)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('F');
-	ImGui::ColorEdit3("Firefly (will kill player)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Firefly (will kill player)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('A');
-	ImGui::ColorEdit3("Amoeba (grows, turns into collectables if fully enclosed)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Amoeba (grows, turns into collectables if fully enclosed)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	col = CharToColor('W');
-	ImGui::ColorEdit3("Steel Wall (indestructible)", &col.r, ImGuiColorEditFlags_NoPicker);
+	ImGui::ColorEdit3("Steel Wall (indestructible)", &col.r, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoPicker);
 
 	ImGui::Unindent();
 
@@ -1208,6 +1220,8 @@ void HazelDashLayer::OnImGuiRender() {
 	float averageFPS = 1.0f / averageRenderTime;
 	ImGui::Text("Average frame render time: %8.5f (%5.0f fps)", averageRenderTime, averageFPS);
 
+	m_bIMGuiHovered = ImGui::IsWindowHovered();
+	m_bIMGuiFocused = ImGui::IsWindowFocused();
 	ImGui::End();
 }
 #endif
