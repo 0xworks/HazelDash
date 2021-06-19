@@ -3,7 +3,10 @@ A 2D demo game project made with the [Hazel engine](https://github.com/TheCherno
 
 As featured in episode 65 of [TheCherno's Game Engine series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT).  Check it out if you haven't already.
 
-Sharp eyed people may notice that the graphics are different here to the ones featured in the youtube clip.  Thanks to iHelp (https://github.com/dovker) for this version of the  graphics.  If you wish for a more authentic retro "Boulder Dash" look, then you can find the original assets on the internet and it is a simple matter to incorporate them into a fork of this code. 
+Sharp eyed people may notice that the graphics are different here to the ones featured in the youtube clip.  HazelDash is rendered with the Hazel Engine's scene renderer, which currently only supports coloured squares.  The player is the white square.  Move with WASD, collect the yellow squares, and then go to the light grey square to proceed to next level.  Dark grey squares are boulders and will fall on you, or you can drop them on butterflies (cyan squares), or fireflies (red squares).  Avoid the slime (green squares).
+
+On earlier branches (see Repository Structure section), a custom texture renderer is used.  Thanks to iHelp (https://github.com/dovker) for the sprites on those branches.<br/>
+If you wish for a more authentic retro "Boulder Dash" look, then you can find the original assets on the internet and it is a simple matter to incorporate them into a fork of this code. 
 
 There are many BoulderDash clones out there, and most of them are far better than this one.  The goal of this repository is not to make the perfect BoulderDash clone, but rather just to make something, for educational purposes, demonstrating use of the Hazel game engine.  Check out the series if you havent already - [TheCherno's Game Engine series](https://www.youtube.com/playlist?list=PLlrATfBNZ98dC-V-N3m0Go4deliWHPFwT).
 
