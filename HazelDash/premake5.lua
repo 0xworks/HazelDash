@@ -10,18 +10,14 @@ project "HazelDash"
 		"MultiProcessorCompile"
 	}
 
-	-- From VS2019 16.9.0 onwards, multiprocessor compile can cause
-	-- error "C1041 cannot open program database if multiple CL.EXE write to the same .PDB file, please use /FS"
-	-- There are two solutions:
-	-- Either:  Add /FS, as I have done here (for VS builds only)
-	-- Or:      Do not use multiprocessor build in conjuction with MTT (https://devblogs.microsoft.com/cppblog/improved-parallelism-in-msbuild/)
-	--
-	-- I have gone with the former because MTT is better, and I dont want to disable it.
 	configuration "vs*"
 		buildoptions {
-		"/permissive-",
-		"/FS"
-	}
+			"/permissive-",            -- Turn off MSVC permissive in order to catch C++ compliance issues
+			"/FS"                      -- Fix "C1041 cannot open program database if multiple CL.EXE write to the same .PDB file"
+		}
+		linkoptions {
+			"/NODEFAULTLIB:'libcmt'"   -- Fix "warning LNK4098: defaultlib 'libcmt.lib' conflicts with use of other libs" (note: premake broken? This option does not come out in the project)
+		}
 
 	targetdir ("bin/" .. outputdir .. "/%{prj.name}")
 	objdir ("bin-int/" .. outputdir .. "/%{prj.name}")

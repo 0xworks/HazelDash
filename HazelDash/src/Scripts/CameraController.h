@@ -1,27 +1,21 @@
 #pragma once
 
 #include "Hazel/Scene/Components.h"
-#include "Hazel/Scene/ScriptableEntity.h"
+#include "Hazel/Scene/NativeScript.h"
 
-class CameraController : public Hazel::ScriptableEntity {
+class CameraController : public Hazel::NativeScript {
 public:
 
-	CameraController(Hazel::Entity trackEntity, float levelWidth, float levelHeight, float cameraSpeed)
-	: m_TrackEntity{trackEntity}
+	CameraController(Hazel::Entity entity, Hazel::Entity trackEntity, float levelWidth, float levelHeight, float cameraSpeed)
+	: NativeScript(entity)
+	, m_TrackEntity{trackEntity}
 	, m_LevelWidth{levelWidth}
 	, m_LevelHeight{levelHeight}
 	, m_CameraSpeed{cameraSpeed}
 	{}
 
-	virtual ~CameraController() = default;
 
-	void OnCreate() {
-	}
-
-	void OnDestroy() {
-	}
-
-	void OnUpdate(Hazel::Timestep ts) {
+	virtual void OnUpdate(Hazel::Timestep ts) override {
 
 		// if tracked entity is no longer valid (e.g. player might have been killed)
 		// then nothing to do here...
