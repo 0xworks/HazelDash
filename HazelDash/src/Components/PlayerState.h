@@ -10,7 +10,3 @@ enum class PlayerState {
 	MovingUp,
 	MovingDown
 };
-
-inline bool IsIdle(PlayerState state) {
-	return (state == PlayerState::Idle) || (state == PlayerState::Blink) || (state == PlayerState::FootTap) || (state == PlayerState::BlinkFootTap);
-}

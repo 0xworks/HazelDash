@@ -4,18 +4,15 @@
 #include "Hazel/Core/Application.h"
 #include "Hazel/Core/EntryPoint.h"
 
-class HazelDashApp : public Hazel::Application
-{
+class HazelDashApp : public Hazel::Application {
 public:
-	HazelDashApp(Hazel::ApplicationCommandLineArgs args)
-	{
+	HazelDashApp(Hazel::ApplicationCommandLineArgs args) {
 		Random::Init();
 		PushLayer(new HazelDashLayer());
 	}
-
 };
 
-Hazel::Application* Hazel::CreateApplication(Hazel::ApplicationCommandLineArgs args)
-{
+
+Hazel::Application* Hazel::CreateApplication(Hazel::ApplicationCommandLineArgs args) {
 	return new HazelDashApp(args);
 }

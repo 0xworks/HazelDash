@@ -25,6 +25,17 @@ public:
 
 	void OnEvent(Hazel::Event& e) override;
 
+public:
+	Hazel::Entity GetEntity(const int row, const int col);
+	void SetEntity(const int row, const int col, Hazel::Entity entity);
+	void ClearEntity(const int row, const int col);
+	void SwapEntities(const int rowA, const int colA, const int rowB, const int colB);
+
+	// TODO: should be "events"
+	void OnPlayerDied();
+	void OnLevelCompleted();
+	void OnIncreaseScore();
+
 private:
 	bool OnKeyPressed(Hazel::KeyPressedEvent& e);
 
@@ -38,17 +49,9 @@ private:
 	void AmoebaFixedUpdate();
 	void OnSolidify(const Tile solidfyTo);
 	void PlayerControllerUpdate(Hazel::Timestep ts);
-	bool TryMovePlayer(Hazel::TransformComponent& transformComponent, const std::pair<int, int> direction, const bool ctrlPressed);
-	void OnPlayerDied();
-	void OnLevelCompleted();
-	void OnIncreaseScore();
 	void ExploderUpdate(Hazel::Timestep ts);
 	void AnimatorUpdate(Hazel::Timestep ts);
 
-	Hazel::Entity GetEntity(const int row, const int col);
-	void SetEntity(const int row, const int col, Hazel::Entity entity);
-	void ClearEntity(const int row, const int col);
-	void SwapEntities(const int rowA, const int colA, const int rowB, const int colB);
 
 private:
 	std::array<Hazel::Ref<Hazel::Texture2D>, (size_t)Tile::NumTiles> m_Tiles; // DELETE ME
@@ -63,8 +66,6 @@ private:
 	Hazel::Timestep m_AnimationTimestep;
 	float m_FixedUpdateAccumulatedTs;  // Might be be better as a Hazel::Timestep, but that class doesnt support operator +=
 	float m_AnimatorAccumulatedTs;     // Might be be better as a Hazel::Timestep, but that class doesnt support operator +=
-
-	float m_PushProbability;
 
 	int m_CurrentLevel;
 	int m_Width;
