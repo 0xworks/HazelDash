@@ -57,7 +57,7 @@ project "HazelDash"
 		runtime "Debug"
 		symbols "on"
         postbuildcommands {
-           "{COPY} ../Hazel/Hazel/vendor/VulkanSDK/bin/ %{cfg.targetdir}"
+           "{COPYDIR} ../Hazel/Hazel/vendor/VulkanSDK/bin/ \"%{cfg.targetdir}\""
         }
 
 	filter "configurations:Profile"

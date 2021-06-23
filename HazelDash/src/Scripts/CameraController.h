@@ -1,18 +1,24 @@
 #pragma once
 
+#include "Level.h"
 #include "Hazel/Scene/Components.h"
 #include "Hazel/Scene/NativeScript.h"
 
 class CameraController : public Hazel::NativeScript {
 public:
 
-	CameraController(Hazel::Entity entity, Hazel::Entity trackEntity, float levelWidth, float levelHeight, float cameraSpeed)
-	: NativeScript(entity)
-	, m_TrackEntity{trackEntity}
-	, m_LevelWidth{levelWidth}
-	, m_LevelHeight{levelHeight}
+	CameraController(Hazel::Entity entity, uint32_t viewPortWidth, uint32_t viewPortHeight, float cameraSpeed)
+	: NativeScript{entity}
+	, m_TrackEntity{Level::Get()->GetPlayerEntity()}
+	, m_LevelWidth{static_cast<float>(Level::Get()->GetWidth())}
+	, m_LevelHeight{static_cast<float>(Level::Get()->GetHeight())}
 	, m_CameraSpeed{cameraSpeed}
-	{}
+	{
+		auto& cc = GetComponent<Hazel::CameraComponent>();
+		cc.Camera.SetViewportSize(viewPortWidth, viewPortHeight);  // The magnitude of these numbers doesn't matter, only the ratio between them is important.
+		cc.Camera.SetOrthographicSize(static_cast<float>(std::min(Level::Get()->GetHeight(), viewPortHeight)));  // This is what controls the actual size of the viewport.
+		GetComponent<Hazel::TransformComponent>().Translation = {viewPortWidth / 2.0f, viewPortHeight / 2.0f, 0.0f};
+	}
 
 
 	virtual void OnUpdate(Hazel::Timestep ts) override {
