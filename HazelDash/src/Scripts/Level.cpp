@@ -11,7 +11,9 @@
 #include "Components/Roll.h"
 #include "Components/Tile.h"
 
+#include "Scripts/Enemy.h"
 #include "Scripts/PlayerController.h"
+#include "Scripts/Physics.h"
 
 #include "Hazel/Scene/Components.h"
 
@@ -66,13 +68,33 @@ Level::Level(Hazel::Entity entity, int level, float fixedTimestep, float animati
 					if (IsAmoeba(tile)) {
 						entity.AddComponent<Amoeba>();
 					} else if (IsBoulder(tile) || IsDiamond(tile)) {
-						entity.AddComponent<Mass>();
+						entity
+							.AddComponent<Mass>()
+							.AddComponent<Hazel::NativeScriptComponent>()
+							.GetComponent<Hazel::NativeScriptComponent>()
+							.Bind<Physics>(m_FixedTimestep)
+						;
 					} else if (IsBarrel(tile)) {
-						entity.AddComponent<Mass>(MassState::Stationary, 0, 5);
+						entity
+							.AddComponent<Mass>(MassState::Stationary, 0, 5)
+							.AddComponent<Hazel::NativeScriptComponent>()
+							.GetComponent<Hazel::NativeScriptComponent>()
+							.Bind<Physics>(m_FixedTimestep)
+						;
 					} else if (IsButterfly(tile)) {
-						entity.AddComponent<EnemyMovement>(3, false);
+						entity
+							.AddComponent<EnemyMovement>(3, false)
+							.AddComponent<Hazel::NativeScriptComponent>()
+							.GetComponent<Hazel::NativeScriptComponent>()
+							.Bind<Enemy>(m_FixedTimestep)
+						;
 					} else if (IsFirefly(tile)) {
-						entity.AddComponent<EnemyMovement>(1, true);
+						entity
+							.AddComponent<EnemyMovement>(1, true)
+							.AddComponent<Hazel::NativeScriptComponent>()
+							.GetComponent<Hazel::NativeScriptComponent>()
+							.Bind<Enemy>(m_FixedTimestep)
+						;
 					} else if (IsDoor(tile)) {
 						m_ExitEntity = entity;
 					} else if (IsPlayer(tile)) {
@@ -116,152 +138,11 @@ Level::~Level() {
 void Level::OnUpdate(Hazel::Timestep ts) {
 	m_FixedUpdateAccumulatedTs += ts;
 	if (m_FixedUpdateAccumulatedTs > m_FixedTimestep) {
-			//
-			// Each of these functions is a "system" that operates on a set of game entities.
-			// I envisage splitting these into separate scripts in the future
-			//
-			// These systems are updated on a fixed timestep
-			PhysicsFixedUpdate();
-			EnemiesFixedUpdate();
-			AmoebaFixedUpdate();
-			m_FixedUpdateAccumulatedTs = 0.0;
-		}
-
-	// These systems update as fast as they like
+		AmoebaFixedUpdate();
+		m_FixedUpdateAccumulatedTs = 0.0;
+	}
 	ExploderUpdate(ts);
 	AnimatorUpdate(ts);
-}
-
-
-void Level::PhysicsFixedUpdate() {
-	HZ_PROFILE_FUNCTION();
-	// Note: To get the behaviour of the original DB game, the "physics" system must evaluate
-	//       the entities in level top-down order.
-	//       However, the ECS will not do that.
-	//       Instead, entities will just be iterated in whatever order they happen to be stored in the
-	//       underlying data structures (and to try and iterate them in any other order kind of defeats
-	//       the purpose of the ECS in the first place (which is to iterate in a cache-friendly way))
-	//       EnTT does allow for sorting of components (i.e. sort them first, and then iterate them in order)
-	//       So that is worth investigating.
-	//       However, for now I am just going to ignore it, and iterate the entities in the order that the ECS
-	//       has them.
-
-	static const std::pair<int, int> Below = {-1, 0};
-	static const std::pair<int, int> Left = {0, -1};
-	static const std::pair<int, int> BelowLeft = {-1, -1};
-	static const std::pair<int, int> Right = {0, 1};
-	static const std::pair<int, int> BelowRight = {-1, 1};
-
-	for (auto&& [entityHandle, mass, transformComponent] : GetScene().m_Registry.group<Mass>(entt::get<Hazel::TransformComponent>).each()) {
-		int row = static_cast<int>(transformComponent.Translation.y);
-		int col = static_cast<int>(transformComponent.Translation.x);
-		Hazel::Entity entity = {entityHandle, GetScene()};
-		Hazel::Entity entityBelow = GetEntity(row + Below.first, col + Below.second);
-		auto tileBelow = entityBelow.GetComponent<Tile>();
-		if (IsEmpty(tileBelow)) {
-			mass.State = MassState::Falling;
-			++mass.HeightFallen;
-			SwapEntities(row, col, row + Below.first, col + Below.second);
-			transformComponent.Translation += glm::vec3{Below.second, Below.first, 0.0f};
-		} else {
-			if ((mass.State == MassState::Falling) && IsExplosive(tileBelow)) {
-				OnExplode(row + Below.first, col + Below.second);
-			} else if (mass.HeightFallen > mass.FallLimit) {
-				OnExplode(row, col);
-			} else {
-				if (IsRounded(tileBelow)) {
-					Hazel::Entity entityLeft = GetEntity(row + Left.first, col + Left.second);
-					Hazel::Entity entityBelowLeft = GetEntity(row + BelowLeft.first, row + BelowLeft.second);
-					auto tileLeft = entityLeft.GetComponent<Tile>();
-					auto tileBelowLeft = entityBelowLeft.GetComponent<Tile>();
-					if (IsEmpty(tileLeft) && IsEmpty(tileBelowLeft)) {
-						// bounce left
-						mass.State = MassState::Falling;
-						SwapEntities(row, col, row + Left.first, col + Left.second);
-						transformComponent.Translation += glm::vec3{Left.second, Left.first, 0.0f};
-						if (entity.HasComponent<Roll>()) {
-							auto& roll = entity.GetComponent<Roll>();
-							auto& tile = entity.GetComponent<Tile>();
-							roll.CurrentFrame = (roll.CurrentFrame - 1) % roll.Frames.size();
-							tile = roll.Frames[roll.CurrentFrame];
-						}
-					} else {
-						Hazel::Entity entityRight = GetEntity(row + Right.first, col + Right.second);
-						Hazel::Entity entityBelowRight = GetEntity(row + BelowRight.first, col + BelowRight.second);
-						auto tileRight = entityRight.GetComponent<Tile>();
-						auto tileBelowRight = entityBelowRight.GetComponent<Tile>();
-						if (IsEmpty(tileRight) && IsEmpty(tileBelowRight)) {
-							// bounce right
-							mass.State = MassState::Falling;
-							SwapEntities(row, col, row + Right.first, col + Right.second);
-							transformComponent.Translation += glm::vec3{Right.second, Right.first, 0.0f};
-							if (entity.HasComponent<Roll>()) {
-								auto& roll = entity.GetComponent<Roll>();
-								auto& tile = entity.GetComponent<Tile>();
-								roll.CurrentFrame = (roll.CurrentFrame + 1) % roll.Frames.size();
-								tile = roll.Frames[roll.CurrentFrame];
-							}
-						} else {
-							mass.State = MassState::Stationary;
-							mass.HeightFallen = 0;
-						}
-					}
-				} else {
-					mass.State = MassState::Stationary;
-					mass.HeightFallen = 0;
-				}
-			}
-		}
-	}
-}
-
-
-void Level::EnemiesFixedUpdate() {
-	HZ_PROFILE_FUNCTION();
-
-	static std::array<std::pair<int, int>, 4> Directions{
-		std::pair<int, int>{-1,  0},
-		std::pair<int, int>{ 0, -1},
-		std::pair<int, int>{ 1,  0},
-		std::pair<int, int>{ 0,  1}
-	};
-
-	for (auto&& [entityHandle, movement, transformComponent] : GetScene().m_Registry.group<EnemyMovement>(entt::get<Hazel::TransformComponent>).each()) {
-		int row = static_cast<int>(transformComponent.Translation.y);
-		int col = static_cast<int>(transformComponent.Translation.x);
-
-		// If next to player, then explode (and do not move)
-		bool move = true;
-		for (auto direction : Directions) {
-			if (IsPlayer(GetEntity(row + direction.first, col + direction.second).GetComponent<Tile>())) {
-				OnExplode(row, col);
-				move = false;
-				break;
-			}
-		}
-		if (move) {
-			// try to turn in preferred direction
-			// if that is not possible, go straight ahead
-			// if that is not possible either, then don't move, but change to opposite direction for next frame
-			int direction = (movement.Direction + (movement.PreferLeftTurn ? -1 : 1)) % Directions.size();
-			int preferredRow = row + Directions[direction].first;
-			int preferredCol = col + Directions[direction].second;
-			if (IsEmpty(GetEntity(preferredRow, preferredCol).GetComponent<Tile>())) {
-				SwapEntities(row, col, preferredRow, preferredCol);
-				transformComponent.Translation += glm::vec3{Directions[direction].second, Directions[direction].first, 0.0f};
-				movement.Direction = direction;
-			} else {
-				int straightRow = row + Directions[movement.Direction].first;
-				int straightCol = col + Directions[movement.Direction].second;
-				if (IsEmpty(GetEntity(straightRow, straightCol).GetComponent<Tile>())) {
-					SwapEntities(row, col, straightRow, straightCol);
-					transformComponent.Translation += glm::vec3{Directions[movement.Direction].second, Directions[movement.Direction].first, 0.0f};
-				} else {
-					movement.Direction = (movement.Direction + 2) % Directions.size();
-				}
-			}
-		}
-	}
 }
 
 
@@ -409,8 +290,13 @@ void Level::ExploderUpdate(Hazel::Timestep ts) {
 				if (IsDiamond(animation.Frames.back())) {
 					// turn into a diamond
 					Hazel::Entity entity(entityHandle, GetScene());
-					entity.RemoveComponent<Explosion>();
-					entity.AddComponent<Mass>();
+					entity
+						.RemoveComponent<Explosion>()
+						.AddComponent<Mass>()
+						.AddComponent<Hazel::NativeScriptComponent>()
+						.GetComponent<Hazel::NativeScriptComponent>()
+						.Bind<Physics>(m_FixedTimestep)
+					;
 					animation = CharToAnimation('d');
 					spriteRenderer.Color = CharToColor('d');
 				} else {

@@ -12,8 +12,6 @@ public:
 
 	virtual void OnUpdate(Hazel::Timestep ts) override;
 
-	void PhysicsFixedUpdate();
-	void EnemiesFixedUpdate();
 	void OnExplode(const int row, const int col);
 	void AmoebaFixedUpdate();
 	void OnSolidify(const Tile solidfyTo);
